@@ -1,17 +1,23 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.pedropathing.util.Timer;
 
-public class FirstAuto {
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+@Autonomous
+public class FirstAuto extends OpMode{
     private Follower follower;
 
     private Timer pathTimer, opModeTimer;
@@ -56,17 +62,40 @@ public class FirstAuto {
             default:
                 telemetry.addLine("No State Command");
                 break;
-
         }
+    }
+
+    public void setPathState(PathState newState){
+        pathState = newState;
+        pathTimer.resetTimer();
     }
 
     @Override
     public void init(){
+        pathState = PathState.DRIVE_STARTPOS_SHOOT_POS;
+        pathTimer = new Timer();
+        opModeTimer = new Timer();
+        opModeTimer.resetTimer();
+        follower = Constants.createFollower(hardwareMap);
 
+        buildPaths();
+        follower.setPose(startingPose);
+    }
+
+    public void start(){
+        opModeTimer.resetTimer();
+        setPathState(pathState);
     }
 
     @Override
     public void loop(){
+        follower.update();
+        statePathUpdate();
 
+        telemetry.addData("Path State: ", pathState.toString());
+        telemetry.addData("X ", follower.getPose().getX());
+        telemetry.addData("Y: ", follower.getPose().getY());
+        telemetry.addData("Heading: ", follower.getPose().getHeading());
+        telemetry.addData("Path Time: ", pathTimer.getElapsedTimeSeconds());
     }
 }
