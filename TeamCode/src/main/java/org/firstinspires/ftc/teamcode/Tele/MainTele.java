@@ -34,7 +34,7 @@ public class MainTele extends OpMode {
     private Hood hood;
 
     private int RPMSpeed;
-    private int gyroPos = 90; //RED Math.toRadians(0), BLUE Math.toRadians(180), And Practice Math.toRadians(90)
+    private int gyroPos = 180; //RED: 0, BLUE: 180, And Practice: 90
 
     private GoBildaPinpointDriver pinpoint;
 

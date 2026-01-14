@@ -1,101 +1,138 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.pedropathing.util.Timer;
+
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 
-@Autonomous
-public class FirstAuto extends OpMode{
+@Autonomous(name = "FirstAuto")
+public class FirstAuto extends OpMode {
     private Follower follower;
+    private Shooter shooter;
+    private Intake intake;
 
-    private Timer pathTimer, opModeTimer;
 
-    public enum PathState{
-        //Start POSITION_END POSITION
-        //DRIVE>MOVEMENT STATE
-        //SHOOT>ATTEMPT TO SCORE THE ARTIFACT
+    private Timer pathTimer;
+    private Timer opModeTimer;
 
+
+    public enum PathState {
+        SPIN_UP_SHOOTER,
+        SHOOT_PRELOAD,
         DRIVE_STARTPOS_SHOOT_POS,
-
-        SHOOT_PRELOAD
+        DONE
     }
 
-    PathState pathState;
+    private PathState pathState;
 
-    private final Pose startingPose = new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(324));
-    private final Pose shootPose = new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(130));
+    private final Pose startingPose =
+            new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(140));
+
+    private final Pose shootPose =
+            new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(180));
 
     private PathChain driveStartPoseShootPos;
 
-    public void buildPaths(){
-        //put in coordinates for starting pose > ending pose
+
+    public void buildPaths() {
         driveStartPoseShootPos = follower.pathBuilder()
                 .addPath(new BezierLine(startingPose, shootPose))
-                .setLinearHeadingInterpolation(startingPose.getHeading(), shootPose.getHeading())
+                .setLinearHeadingInterpolation(
+                        startingPose.getHeading(),
+                        shootPose.getHeading()
+                )
                 .build();
     }
 
-    public void statePathUpdate(){
-        switch(pathState){
-            case DRIVE_STARTPOS_SHOOT_POS:
-                follower.followPath(driveStartPoseShootPos, true);
-                pathState = PathState.SHOOT_PRELOAD;
-                break;
-            case SHOOT_PRELOAD:
-                //check if follower is done its path
-                if(!follower.isBusy()) {
-                    //TODO add logic to flywheel shooter
-                    telemetry.addLine("Done Path 1");
-                }
-            default:
-                telemetry.addLine("No State Command");
-                break;
-        }
-    }
-
-    public void setPathState(PathState newState){
+    public void setPathState(PathState newState) {
         pathState = newState;
         pathTimer.resetTimer();
     }
 
+    public void statePathUpdate() {
+        switch (pathState) {
+            case SPIN_UP_SHOOTER:
+                shooter.setTargetRPM(130);
+                if (shooter.isAtTargetRPM()
+                        || pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    setPathState(PathState.SHOOT_PRELOAD);
+                }
+                break;
+
+            case SHOOT_PRELOAD:
+                shooter.setIndexerPower(1);
+                intake.intakeIn();
+
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    shooter.setIndexerPower(0);
+                    setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
+                }
+                break;
+
+            case DRIVE_STARTPOS_SHOOT_POS:
+                follower.followPath(driveStartPoseShootPos, true);
+                setPathState(PathState.DONE);
+                break;
+
+            case DONE:
+                // Do nothing
+                break;
+        }
+    }
+
+
     @Override
-    public void init(){
-        pathState = PathState.DRIVE_STARTPOS_SHOOT_POS;
+    public void init() {
         pathTimer = new Timer();
         opModeTimer = new Timer();
         opModeTimer.resetTimer();
+
+
         follower = Constants.createFollower(hardwareMap);
+        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
+
 
         buildPaths();
         follower.setPose(startingPose);
+
+
+        pathState = PathState.SPIN_UP_SHOOTER;
     }
 
-    public void start(){
-        opModeTimer.resetTimer();
-        setPathState(pathState);
-    }
 
     @Override
-    public void loop(){
+    public void start() {
+        opModeTimer.resetTimer();
+        setPathState(PathState.SPIN_UP_SHOOTER);
+    }
+
+
+    @Override
+    public void loop() {
+        shooter.update();
         follower.update();
         statePathUpdate();
 
-        telemetry.addData("Path State: ", pathState.toString());
-        telemetry.addData("X ", follower.getPose().getX());
-        telemetry.addData("Y: ", follower.getPose().getY());
-        telemetry.addData("Heading: ", follower.getPose().getHeading());
-        telemetry.addData("Path Time: ", pathTimer.getElapsedTimeSeconds());
+        telemetry.addData("State", pathState);
+        telemetry.addData("Shooter RPM", shooter.getCurrentRPM());
+        telemetry.addData("Target RPM", shooter.getTargetRPM());
+        telemetry.addData("X", follower.getPose().getX());
+        telemetry.addData("Y", follower.getPose().getY());
+        telemetry.addData("Heading", follower.getPose().getHeading());
+        telemetry.addData("Path Time", pathTimer.getElapsedTimeSeconds());
     }
 }
