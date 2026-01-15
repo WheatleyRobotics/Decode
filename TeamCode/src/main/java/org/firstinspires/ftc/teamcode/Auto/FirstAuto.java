@@ -41,18 +41,17 @@ public class FirstAuto extends OpMode {
     private final Pose startingPose =
             new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(140));
 
-    private final Pose shootPose =
-            new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(180));
+    private final Pose intakePose =
+            new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(181));
 
     private PathChain driveStartPoseShootPos;
 
-
     public void buildPaths() {
         driveStartPoseShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(startingPose, shootPose))
+                .addPath(new BezierLine(startingPose, intakePose))
                 .setLinearHeadingInterpolation(
                         startingPose.getHeading(),
-                        shootPose.getHeading()
+                        intakePose.getHeading()
                 )
                 .build();
     }
@@ -67,7 +66,7 @@ public class FirstAuto extends OpMode {
             case SPIN_UP_SHOOTER:
                 shooter.setTargetRPM(130);
                 if (shooter.isAtTargetRPM()
-                        || pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        || pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;
@@ -76,7 +75,7 @@ public class FirstAuto extends OpMode {
                 shooter.setIndexerPower(1);
                 intake.intakeIn();
 
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 2.5) {
                     shooter.setIndexerPower(0);
                     setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
                 }
@@ -92,7 +91,6 @@ public class FirstAuto extends OpMode {
                 break;
         }
     }
-
 
     @Override
     public void init() {
@@ -113,13 +111,11 @@ public class FirstAuto extends OpMode {
         pathState = PathState.SPIN_UP_SHOOTER;
     }
 
-
     @Override
     public void start() {
         opModeTimer.resetTimer();
         setPathState(PathState.SPIN_UP_SHOOTER);
     }
-
 
     @Override
     public void loop() {

@@ -33,8 +33,9 @@ public class MainTele extends OpMode {
     private Intake intake;
     private Hood hood;
 
+    private int gyroPos = 90; //RED: 0, BLUE: 180, And Practice: 90
     private int RPMSpeed;
-    private int gyroPos = 180; //RED: 0, BLUE: 180, And Practice: 90
+    private double hoodPos;
 
     private GoBildaPinpointDriver pinpoint;
 
@@ -50,6 +51,9 @@ public class MainTele extends OpMode {
         hood = new Hood(hardwareMap);
 
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
+
+        hood.setRange(0, 0.9);
+        hood.resetServo();
     }
 
     @Override
@@ -85,14 +89,17 @@ public class MainTele extends OpMode {
 
         if(gamepad2.dpad_up){
             RPMSpeed = 130;
+            hood.setHoodPos(0.6);
             //targetAngle = 125;
         }
         else if(gamepad2.dpad_right){
             RPMSpeed = 190;
+            hood.setHoodPos(0.7);
             //targetAngle = 125;
         }
-        if(gamepad2.dpad_down){
+        else if(gamepad2.dpad_down){
             RPMSpeed = 225;
+            hood.setHoodPos(0.8);
             //targetAngle = 100;
         }
 
@@ -119,101 +126,19 @@ public class MainTele extends OpMode {
 
         shooter.update();
 
-        /*
-        if (gamepad1.left_bumper) {
-            intake.intakeIn();
-            //shooter.setIndexerPower(-1);
-        }
-        else if (gamepad1.x) {
-            intake.intakeOut();
-            //shooter.setIndexerPower(-1);
-        }
-        else if(gamepad1.y){
-            intake.tunnelRun();
-            shooter.setIndexerPower(1);
-        }
-        else{
-            intake.stopIntaking();
-            intake.stopTunnel();
-        }
-         */
-
-
-
-        /*
-        if (gamepad1.right_bumper) {
-            shooter.setTargetRPM(210);
-        } else {
-            shooter.stopShooter();
-            feeding = false; // reset latch
-        }
-
-        // Latch when shooter reaches speed
-        if (!feeding && shooter.isAtTargetRPM()) {
-            feeding = true;
-        }
-
-        // Feed while latched
-        if (feeding) {
-            intake.intakeWithShoot();
-        }
-        else if (gamepad1.left_bumper) {
-            intake.intakeIn();
-            shooter.setIndexerPower(-1);
-        }
-        else if (gamepad1.y) {
-            intake.intakeOut();
-            shooter.setIndexerPower(-1);
-        }
-        else {
-            intake.stopIntaking();
-            intake.stopTunnel();
-        }
-
-        shooter.update();
-
-         */
-
-        /*
-        if(shooter.getTargetRPM() > 0 && shooter.isAtTargetRPM()) {
-            intake.intakeWithTunnel();
-            stopTunnnel = false;
-        }
-        else{
-            stopTunnnel = true;
-        }
-
-        if (stopTunnnel == true){
-            intake.stopTunnel();
-        }
-
-        shooter.update();
-
-        // -------- INTAKE --------
-        if (gamepad1.left_bumper) {
-            intake.intakeIn();
-            shooter.setIndexerPower(-1);
-        }
-        else if (gamepad1.y) {
-            intake.intakeOut();
-            shooter.setIndexerPower(-1);
-        }
-        else {
-            intake.stopIntaking();
-        }
-
-         */
-
         //-------- HOOD --------
-        if (gamepad2.y) {
-            hood.up();
+        if(gamepad2.y){
+            hood.manualUp();
         }
-        else if (gamepad2.x) {
-            hood.down();
+        else if(gamepad2.a){
+            hood.manualDown();
         }
+
+        /*
         else {
             hood.stop();
         }
+         */
 
         // -------- TELEMETRY --------
         //Drive
@@ -226,11 +151,14 @@ public class MainTele extends OpMode {
         telemetry.addData("Right Odo", odometry.rightEncoder.getCurrentPosition());
 
          */
+
         //Shooter
         telemetry.addData("Shooter Ready:", shooter.isAtTargetRPM());
         telemetry.addData("Target RPM:", shooter.getTargetRPM());
         telemetry.addData("Current RPM:", shooter.getCurrentRPM());
         telemetry.addData("RPM Difference:", shooter.RPMDiff());
+        //Hood Servo
+        telemetry.addData("Servo Pos: ", hood.getServoPos());
         telemetry.update();
     }
 
