@@ -17,12 +17,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
+import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 
 @Autonomous(name = "FirstAuto")
 public class FirstAuto extends OpMode {
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
+    private Hood hood;
 
 
     private Timer pathTimer;
@@ -69,6 +71,7 @@ public class FirstAuto extends OpMode {
                         || pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
+                hood.setHoodPos(0.6);
                 break;
 
             case SHOOT_PRELOAD:
@@ -102,6 +105,7 @@ public class FirstAuto extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
+        hood = new Hood(hardwareMap);
 
 
         buildPaths();
