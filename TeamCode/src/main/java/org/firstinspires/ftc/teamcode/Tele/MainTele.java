@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+//import org.firstinspires.ftc.teamcode.Commands.AutoAim;
 
 import java.util.function.Supplier;
 
@@ -32,10 +33,16 @@ public class MainTele extends OpMode {
     private Shooter shooter;
     private Intake intake;
     private Hood hood;
+    //private AutoAim autoAim;
 
     private int gyroPos = 90; //RED: 0, BLUE: 180, And Practice: 90
+    private double gyroShootPos = 100;
+
     private int RPMSpeed;
     private double hoodPos;
+
+    double turnInput = 0;
+    boolean autoAimActive = false;
 
     private GoBildaPinpointDriver pinpoint;
 
@@ -53,6 +60,7 @@ public class MainTele extends OpMode {
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
 
         hood.setRange(0, 0.9);
+        hood.setHoodPos(0);
         hood.resetServo();
     }
 
@@ -75,6 +83,32 @@ public class MainTele extends OpMode {
         telemetryM.debug("position", follower.getPose());
         telemetryM.debug("velocity", follower.getVelocity());
 
+        /*
+        if (gamepad1.right_trigger > 0.8) {
+            autoAimActive = true;
+        }
+
+
+        if (autoAimActive) {
+            //turnInput = autoAim.getTurnPower(gyroShootPos);
+
+            if (autoAim.isAimed(gyroShootPos)) {
+                autoAimActive = false;
+            }
+        }
+        else {
+            turnInput = -gamepad1.right_stick_x * 0.8;
+        }
+
+        follower.setTeleOpDrive(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                turnInput,
+                false,
+                Math.toRadians(gyroPos)
+        );
+        */
+
         if(gamepad1.b){
             pinpoint.setHeading(gyroPos, AngleUnit.DEGREES);
         }
@@ -93,8 +127,8 @@ public class MainTele extends OpMode {
             //targetAngle = 125;
         }
         else if(gamepad2.dpad_right){
-            RPMSpeed = 190;
-            hood.setHoodPos(0.7);
+            RPMSpeed = 192;
+            hood.setHoodPos(0.78);
             //targetAngle = 125;
         }
         else if(gamepad2.dpad_down){
@@ -127,12 +161,15 @@ public class MainTele extends OpMode {
         shooter.update();
 
         //-------- HOOD --------
+        /*
         if(gamepad2.y){
             hood.manualUp();
         }
         else if(gamepad2.a){
             hood.manualDown();
         }
+
+         */
 
         /*
         else {
@@ -159,6 +196,8 @@ public class MainTele extends OpMode {
         telemetry.addData("RPM Difference:", shooter.RPMDiff());
         //Hood Servo
         telemetry.addData("Servo Pos: ", hood.getServoPos());
+        //gyro
+        //telemetry.addData("Gyro Pos: ", autoAim.);
         telemetry.update();
     }
 

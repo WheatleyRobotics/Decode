@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -12,7 +10,6 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
@@ -26,10 +23,8 @@ public class FirstAuto extends OpMode {
     private Intake intake;
     private Hood hood;
 
-
     private Timer pathTimer;
     private Timer opModeTimer;
-
 
     public enum PathState {
         SPIN_UP_SHOOTER,
@@ -66,12 +61,12 @@ public class FirstAuto extends OpMode {
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
+                hood.setHoodPos(0.6);
                 shooter.setTargetRPM(130);
                 if (shooter.isAtTargetRPM()
                         || pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
-                hood.setHoodPos(0.6);
                 break;
 
             case SHOOT_PRELOAD:
@@ -101,16 +96,13 @@ public class FirstAuto extends OpMode {
         opModeTimer = new Timer();
         opModeTimer.resetTimer();
 
-
         follower = Constants.createFollower(hardwareMap);
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         hood = new Hood(hardwareMap);
 
-
         buildPaths();
         follower.setPose(startingPose);
-
 
         pathState = PathState.SPIN_UP_SHOOTER;
     }

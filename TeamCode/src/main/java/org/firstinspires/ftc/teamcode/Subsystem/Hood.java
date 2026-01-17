@@ -40,10 +40,4 @@ public class Hood {
     public void setRange(double min, double max){
         hood.scaleRange(min, max);
     }
-
-    /*
-    public void stop(){
-        hood.setPower(0);
-    }
-     */
 }
