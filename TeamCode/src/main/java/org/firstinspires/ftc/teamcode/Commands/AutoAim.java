@@ -11,7 +11,7 @@ public class AutoAim {
     // ---- TUNING VALUES ----
     private static final double KP = 0.012;
     private static final double MAX_TURN_POWER = 0.45;
-    private static final double ANGLE_TOLERANCE_DEG = 1.0;
+    private static final double ANGLE_TOLERANCE_DEG = 0.5; //1.0
 
     public AutoAim(HardwareMap hardwareMap) {
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");

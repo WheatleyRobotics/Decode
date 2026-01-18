@@ -21,6 +21,7 @@ public class LeftAuto extends OpMode {
     private Hood hood;
 
     private Timer pathTimer;
+    private Timer shootDelayTimer;
 
     public enum PathState {
         SPIN_UP_SHOOTER,
@@ -46,30 +47,18 @@ public class LeftAuto extends OpMode {
     }
 
     private PathState pathState;
-
     private final int intakeBallsGyroPos = 181;
 
     // ===== POSES (UNCHANGED) =====
-    private final Pose startingPose =
-            new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(140));
-
-    private final Pose firstIntakePose =
-            new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeFirstBallsPose =
-            new Pose(25, 84.8243626062323, Math.toRadians(intakeBallsGyroPos));
-
-    private final Pose secondIntakePose =
-            new Pose(43.86685552407931, 59.44759206798866, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeSecondBallsPose =
-            new Pose(25, 59.55807365439092, Math.toRadians(intakeBallsGyroPos));
-
-    private final Pose thirdIntakePose =
-            new Pose(43.86685552407931, 35.63172804532578, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeThirdBallsPose =
-            new Pose(25, 35.63172804532578, Math.toRadians(intakeBallsGyroPos));
-
-    private final Pose endingPoint =
-            new Pose(17.906515580736542, 56.8583569405099, Math.toRadians(intakeBallsGyroPos));
+    private final Pose startingPose = new Pose(27.2, 132.283, Math.toRadians(143));
+    private final Pose bumperUpPose = new Pose(27.2, 140.283, Math.toRadians(137));
+    private final Pose firstIntakePose = new Pose(41.8215, 84.7384, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeFirstBallsPose = new Pose(30, 84.7323, Math.toRadians(intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(43.8668, 59.4475, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeSecondBallsPose = new Pose(30, 59.5580, Math.toRadians(intakeBallsGyroPos));
+    private final Pose thirdIntakePose = new Pose(43.8668, 35.6317, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeThirdBallsPose = new Pose(30, 35.6317, Math.toRadians(intakeBallsGyroPos));
+    private final Pose endingPoint = new Pose(20, 56.8583, Math.toRadians(intakeBallsGyroPos));
 
     private PathChain setUpIntakeFirstBallsPos, intakeFirstBallsPos, shootFirstBallsPos,
             setUpIntakeSecondBallsPos, intakeSecondBallsPos, shootSecondBallsPos,
@@ -89,7 +78,7 @@ public class LeftAuto extends OpMode {
 
         shootFirstBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(intakeFirstBallsPose, startingPose))
-                .setLinearHeadingInterpolation(intakeFirstBallsPose.getHeading(), startingPose.getHeading())
+                .setLinearHeadingInterpolation(intakeFirstBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
 
         setUpIntakeSecondBallsPos = follower.pathBuilder()
@@ -104,7 +93,7 @@ public class LeftAuto extends OpMode {
 
         shootSecondBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(intakeSecondBallsPose, startingPose))
-                .setLinearHeadingInterpolation(intakeSecondBallsPose.getHeading(), startingPose.getHeading())
+                .setLinearHeadingInterpolation(intakeSecondBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
 
         setUpIntakeThirdBallsPos = follower.pathBuilder()
@@ -119,7 +108,7 @@ public class LeftAuto extends OpMode {
 
         shootThirdBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(intakeThirdBallsPose, startingPose))
-                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), startingPose.getHeading())
+                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
 
         end = follower.pathBuilder()
@@ -131,14 +120,18 @@ public class LeftAuto extends OpMode {
     public void setPathState(PathState newState) {
         pathState = newState;
         pathTimer.resetTimer();
+        if (newState.toString().startsWith("SHOOT_")) {
+            shootDelayTimer = new Timer(); // reset shoot delay when entering shoot state
+        }
     }
+
+    private final double timeToShoot = 4;
 
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
                 hood.setHoodPos(0.6);
                 shooter.setTargetRPM(130);
-                //if (shooter.isAtTargetRPM() || pathTimer.getElapsedTimeSeconds() > 0.8) {
                 if (pathTimer.getElapsedTimeSeconds() > 0.8) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
@@ -156,15 +149,13 @@ public class LeftAuto extends OpMode {
 
             // ===== FIRST BALLS =====
             case GET_READY_TO_INTAKE_FIRST_BALLS:
-                if (!follower.isBusy()) {
-                    follower.followPath(setUpIntakeFirstBallsPos, true);
-                    setPathState(PathState.INTAKE_FIRST_BALLS);
-                }
+                follower.followPath(setUpIntakeFirstBallsPos, true);
+                setPathState(PathState.INTAKE_FIRST_BALLS);
                 break;
 
             case INTAKE_FIRST_BALLS:
+                intake.intakeIn();
                 if (!follower.isBusy()) {
-                    intake.intakeIn();
                     follower.followPath(intakeFirstBallsPos, true);
                     setPathState(PathState.DRIVE_TO_SHOOT_FIRST_BALLS);
                 }
@@ -179,11 +170,11 @@ public class LeftAuto extends OpMode {
                 break;
 
             case SHOOT_FIRST_BALLS:
-                shooter.setTargetRPM(130);
-                if (shooter.isAtTargetRPM() || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    shooter.setIndexerPower(1);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
+                    shooter.setTargetRPM(130);
                     intake.intakeIn();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    shooter.setIndexerPower(1);
+                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
@@ -198,8 +189,8 @@ public class LeftAuto extends OpMode {
                 break;
 
             case INTAKE_SECOND_BALLS:
+                intake.intakeIn();
                 if (!follower.isBusy()) {
-                    intake.intakeIn();
                     follower.followPath(intakeSecondBallsPos, true);
                     setPathState(PathState.DRIVE_TO_SHOOT_SECOND_BALLS);
                 }
@@ -214,11 +205,11 @@ public class LeftAuto extends OpMode {
                 break;
 
             case SHOOT_SECOND_BALLS:
-                shooter.setTargetRPM(130);
-                if (shooter.isAtTargetRPM() || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    shooter.setIndexerPower(1);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
+                    shooter.setTargetRPM(130);
                     intake.intakeIn();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    shooter.setIndexerPower(1);
+                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_THIRD_BALLS);
@@ -233,8 +224,8 @@ public class LeftAuto extends OpMode {
                 break;
 
             case INTAKE_THIRD_BALLS:
+                intake.intakeIn();
                 if (!follower.isBusy()) {
-                    intake.intakeIn();
                     follower.followPath(intakeThirdBallsPos, true);
                     setPathState(PathState.DRIVE_TO_SHOOT_THIRD_BALLS);
                 }
@@ -249,11 +240,11 @@ public class LeftAuto extends OpMode {
                 break;
 
             case SHOOT_THIRD_BALLS:
-                shooter.setTargetRPM(130);
-                if (shooter.isAtTargetRPM() || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    shooter.setIndexerPower(1);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
+                    shooter.setTargetRPM(130);
                     intake.intakeIn();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    shooter.setIndexerPower(1);
+                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.ENDPOS);
@@ -294,7 +285,10 @@ public class LeftAuto extends OpMode {
         statePathUpdate();
 
         telemetry.addData("State", pathState);
-        telemetry.addData("Busy", follower.isBusy());
+        telemetry.addData("Follower Busy", follower.isBusy());
+        telemetry.addData("Shooter RPM", shooter.getCurrentRPM());
+        telemetry.addData("Target RPM", shooter.getTargetRPM());
+        telemetry.addData("Hood Pos", hood.getServoPos());
         telemetry.update();
     }
 }
