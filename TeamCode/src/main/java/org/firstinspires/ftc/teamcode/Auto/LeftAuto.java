@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Left Auto")
 public class LeftAuto extends OpMode {
-
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
@@ -52,7 +51,7 @@ public class LeftAuto extends OpMode {
 
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose =
-            new Pose(20.996923076923085, 119.64923076923078, Math.toRadians(140));
+            new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(140));
 
     private final Pose firstIntakePose =
             new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(intakeBallsGyroPos));
@@ -135,9 +134,7 @@ public class LeftAuto extends OpMode {
     }
 
     public void statePathUpdate() {
-
         switch (pathState) {
-
             case SPIN_UP_SHOOTER:
                 hood.setHoodPos(0.6);
                 shooter.setTargetRPM(130);
@@ -265,6 +262,7 @@ public class LeftAuto extends OpMode {
                 break;
 
             case ENDPOS:
+                hood.setHoodPos(0);
                 follower.followPath(end, true);
                 setPathState(PathState.DONE);
                 break;

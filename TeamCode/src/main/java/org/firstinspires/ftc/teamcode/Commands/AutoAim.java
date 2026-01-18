@@ -8,19 +8,17 @@ public class AutoAim {
 
     private GoBildaPinpointDriver pinpoint;
 
-    // Fixed turn settings
-    private static final double TURN_POWER = 0.35;
-    private static final double ANGLE_TOLERANCE_DEG = 1.5;
+    // ---- TUNING VALUES ----
+    private static final double KP = 0.012;
+    private static final double MAX_TURN_POWER = 0.45;
+    private static final double ANGLE_TOLERANCE_DEG = 1.0;
 
     public AutoAim(HardwareMap hardwareMap) {
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
-
-        // Reset heading reference
-        pinpoint.setHeading(0, AngleUnit.DEGREES);
     }
 
     public double getTurnPower(double targetYawDeg) {
-        double currentYaw = pinpoint.getHeading(AngleUnit.DEGREES);
+        double currentYaw = getYaw();
 
         double error = angleWrap(targetYawDeg - currentYaw);
 
@@ -28,13 +26,25 @@ public class AutoAim {
             return 0;
         }
 
-        // Direction only, no scaling
-        return error > 0 ? TURN_POWER : -TURN_POWER;
+        double turnPower = error * KP;
+
+        if (turnPower > MAX_TURN_POWER) {
+            turnPower = MAX_TURN_POWER;
+        }
+        if (turnPower < -MAX_TURN_POWER) {
+            turnPower = -MAX_TURN_POWER;
+        }
+
+        return turnPower;
     }
 
     public boolean isAimed(double targetYawDeg) {
-        double currentYaw = pinpoint.getHeading(AngleUnit.DEGREES);
-        return Math.abs(angleWrap(targetYawDeg - currentYaw)) <= ANGLE_TOLERANCE_DEG;
+        double error = angleWrap(targetYawDeg - getYaw());
+        return Math.abs(error) <= ANGLE_TOLERANCE_DEG;
+    }
+
+    public double getYaw() {
+        return pinpoint.getHeading(AngleUnit.DEGREES);
     }
 
     private double angleWrap(double angle) {
@@ -43,7 +53,7 @@ public class AutoAim {
         return angle;
     }
 
-    public void restGyro(double gyroResetAngle){
-        pinpoint.setHeading(gyroResetAngle, AngleUnit.DEGREES);
+    public void resetGyro(double newGyroPos) {
+        pinpoint.setHeading(newGyroPos, AngleUnit.DEGREES);
     }
 }

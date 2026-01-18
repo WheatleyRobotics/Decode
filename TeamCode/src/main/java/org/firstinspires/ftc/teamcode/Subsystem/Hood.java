@@ -17,17 +17,21 @@ public class Hood {
 
     public void setHoodPos(double hoodPos){
         hood.setPosition(hoodPos);
+        manualVal = hoodPos;
     }
 
-    public void manualDown(){
-        manualVal += 0.1;
+    public void manualUp() {
+        manualVal += 0.01;
+        manualVal = Math.max(0.0, Math.min(1.0, manualVal));
         hood.setPosition(manualVal);
     }
 
-    public void manualUp(){
-        manualVal -= 0.1;
+    public void manualDown() {
+        manualVal -= 0.01;
+        manualVal = Math.max(0.0, Math.min(1.0, manualVal));
         hood.setPosition(manualVal);
     }
+
 
     public double getServoPos(){
         return hood.getPosition();
