@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 
-@Autonomous(name = "FirstAuto")
-public class FirstAuto extends OpMode {
+@Autonomous(name = "Red Leave Auto")
+public class LeaveAuto extends OpMode {
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
@@ -33,10 +33,10 @@ public class FirstAuto extends OpMode {
     private PathState pathState;
 
     private final Pose startingPose =
-            new Pose(20.996923076923085, 121.64923076923078, Math.toRadians(140));
+            new Pose(64.19692307692308, 7.778461538461562, Math.toRadians(90));
 
     private final Pose intakePose =
-            new Pose(58.43692307692309, 84.73846153846152, Math.toRadians(181));
+            new Pose(38.27692307692308, 34.227692307692294, Math.toRadians(180));
 
     private PathChain driveStartPoseShootPos;
 
@@ -94,20 +94,20 @@ public class FirstAuto extends OpMode {
         opModeTimer.resetTimer();
 
         follower = Constants.createFollower(hardwareMap);
-        shooter = new Shooter(hardwareMap);
-        intake = new Intake(hardwareMap);
+        //shooter = new Shooter(hardwareMap);
+        //intake = new Intake(hardwareMap);
         //hood = new Hood(hardwareMap);
 
         buildPaths();
         follower.setPose(startingPose);
 
-        pathState = PathState.SPIN_UP_SHOOTER;
+        pathState = PathState.DRIVE_STARTPOS_SHOOT_POS;
     }
 
     @Override
     public void start() {
         opModeTimer.resetTimer();
-        setPathState(PathState.SPIN_UP_SHOOTER);
+        setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
     }
 
     @Override

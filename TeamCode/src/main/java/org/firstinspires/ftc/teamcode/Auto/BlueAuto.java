@@ -8,17 +8,17 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Subsystem.Hood;
+//import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Left Auto")
-public class LeftAuto extends OpMode {
+@Autonomous(name = "Blue Auto")
+public class BlueAuto extends OpMode {
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
-    private Hood hood;
+    //private Hood hood;
 
     private Timer pathTimer;
     private Timer shootDelayTimer;
@@ -52,11 +52,11 @@ public class LeftAuto extends OpMode {
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(27.2, 132.283, Math.toRadians(143));
     private final Pose bumperUpPose = new Pose(27.2, 140.283, Math.toRadians(137));
-    private final Pose firstIntakePose = new Pose(41.8215, 84.7384, Math.toRadians(intakeBallsGyroPos));
+    private final Pose firstIntakePose = new Pose(45.8215, 84.7384, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeFirstBallsPose = new Pose(30, 84.7323, Math.toRadians(intakeBallsGyroPos));
-    private final Pose secondIntakePose = new Pose(43.8668, 59.4475, Math.toRadians(intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(45.8668, 61.4475, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeSecondBallsPose = new Pose(30, 59.5580, Math.toRadians(intakeBallsGyroPos));
-    private final Pose thirdIntakePose = new Pose(43.8668, 35.6317, Math.toRadians(intakeBallsGyroPos));
+    private final Pose thirdIntakePose = new Pose(45.8668, 35.6317, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeThirdBallsPose = new Pose(30, 35.6317, Math.toRadians(intakeBallsGyroPos));
     private final Pose endingPoint = new Pose(20, 56.8583, Math.toRadians(intakeBallsGyroPos));
 
@@ -125,14 +125,15 @@ public class LeftAuto extends OpMode {
         }
     }
 
-    private final double timeToShoot = 4;
+    private final double timeToShoot = 6;
+    private final double preLoadWait = 1.8;
 
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
-                hood.setHoodPos(0.6);
+                //hood.setHoodPos(0.6);
                 shooter.setTargetRPM(130);
-                if (pathTimer.getElapsedTimeSeconds() > 0.8) {
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;
@@ -140,7 +141,7 @@ public class LeftAuto extends OpMode {
             case SHOOT_PRELOAD:
                 shooter.setIndexerPower(1);
                 intake.intakeIn();
-                if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 2.7) {
                     shooter.stopShooter();
                     intake.stopIntaking();
                     setPathState(PathState.GET_READY_TO_INTAKE_FIRST_BALLS);
@@ -253,7 +254,7 @@ public class LeftAuto extends OpMode {
                 break;
 
             case ENDPOS:
-                hood.setHoodPos(0);
+                //hood.setHoodPos(0);
                 follower.followPath(end, true);
                 setPathState(PathState.DONE);
                 break;
@@ -270,7 +271,7 @@ public class LeftAuto extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        hood = new Hood(hardwareMap);
+        //hood = new Hood(hardwareMap);
 
         buildPaths();
         follower.setPose(startingPose);
@@ -288,7 +289,7 @@ public class LeftAuto extends OpMode {
         telemetry.addData("Follower Busy", follower.isBusy());
         telemetry.addData("Shooter RPM", shooter.getCurrentRPM());
         telemetry.addData("Target RPM", shooter.getTargetRPM());
-        telemetry.addData("Hood Pos", hood.getServoPos());
+        //telemetry.addData("Hood Pos", hood.getServoPos());
         telemetry.update();
     }
 }

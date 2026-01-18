@@ -5,37 +5,29 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.Drivetrain;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.HeadingInterpolator;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Subsystem.Hood;
+//import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Commands.AutoAim;
 
-import java.util.function.Supplier;
-
 @Configurable
 @TeleOp
-public class MainTele extends OpMode {
+public class BlueTele extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90)); //See ExampleAuto to understand how to use this
     private TelemetryManager telemetryM;
     private Drivetrain drivetrain;
     private Shooter shooter;
     private Intake intake;
-    private Hood hood;
+    //private Hood hood;
     private AutoAim autoAim;
 
-    private int gyroPos = 90; //RED: 0, BLUE: 180, And Practice: 90
+    private int gyroPos = 180; //RED: 0, BLUE: 180, And Practice: 90
     private double gyroShootPos = 100;
     private boolean lastRightTrigger = false;
 
@@ -57,12 +49,12 @@ public class MainTele extends OpMode {
 
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        hood = new Hood(hardwareMap);
+        //hood = new Hood(hardwareMap);
         autoAim = new AutoAim(hardwareMap);
 
         //pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
 
-        hood.setRange(0, 0.9);
+        //hood.setRange(0, 0.9);
         //hood.resetServo();
     }
 
@@ -71,7 +63,7 @@ public class MainTele extends OpMode {
         //The parameter controls whether the Follower should use break mode on the motors (using it is recommended).
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
-        hood.setHoodPos(0);
+        //hood.setHoodPos(0);
         follower.startTeleopDrive();
     }
 
@@ -131,22 +123,22 @@ public class MainTele extends OpMode {
             shooter.stopShooter();
         }
 
-        if(gamepad1.dpad_up){
+        if(gamepad2.dpad_up){
             RPMSpeed = 130;
-            hood.setHoodPos(0.6);
-            gyroShootPos = 130;
+            //hood.setHoodPos(0.6);
+            gyroShootPos = 142;
             //targetAngle = 125;
         }
-        else if(gamepad1.dpad_right){
+        else if(gamepad2.dpad_right){
             RPMSpeed = 192;
-            hood.setHoodPos(0.78);
-            gyroShootPos = 137;
+            //hood.setHoodPos(0.78);
+            gyroShootPos = 47;
             //targetAngle = 125;
         }
-        else if(gamepad1.dpad_down){
+        else if(gamepad2.dpad_down){
             RPMSpeed = 225;
-            hood.setHoodPos(0.8);
-            gyroShootPos = 100;
+            //hood.setHoodPos(0.8);
+            gyroShootPos = 47;
             //targetAngle = 100;
         }
 
@@ -176,10 +168,10 @@ public class MainTele extends OpMode {
         //-------- HOOD --------
 
         if(gamepad2.y){
-            hood.manualUp();
+            //hood.manualUp();
         }
         else if(gamepad2.a){
-            hood.manualDown();
+            //hood.manualDown();
         }
 
         /*
@@ -206,7 +198,7 @@ public class MainTele extends OpMode {
         telemetry.addData("Current RPM:", shooter.getCurrentRPM());
         telemetry.addData("RPM Difference:", shooter.RPMDiff());
         //Hood Servo
-        telemetry.addData("Servo Pos: ", hood.getServoPos());
+        //telemetry.addData("Servo Pos: ", hood.getServoPos());
         //gyro
         telemetry.addData("Pinpoint Yaw (deg)", autoAim.getYaw());
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
