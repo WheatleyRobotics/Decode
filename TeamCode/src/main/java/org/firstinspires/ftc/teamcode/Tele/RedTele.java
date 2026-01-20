@@ -8,6 +8,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
@@ -31,6 +32,8 @@ public class RedTele extends OpMode {
     private double gyroShootPos = 100;
     private boolean lastRightTrigger = false;
 
+    private double endGameStart;
+    private boolean  isEndGame;
 
     private int RPMSpeed;
     private double hoodPos;
@@ -65,6 +68,7 @@ public class RedTele extends OpMode {
         //If you don't pass anything in, it uses the default (false)
         //hood.setHoodPos(0);
         follower.startTeleopDrive();
+        endGameStart = getRuntime() + 90;
     }
 
     @Override
@@ -123,19 +127,19 @@ public class RedTele extends OpMode {
             shooter.stopShooter();
         }
 
-        if(gamepad2.dpad_up){
+        if(gamepad1.dpad_up){
             RPMSpeed = 130;
             //hood.setHoodPos(0.6);
             gyroShootPos = 142;
             //targetAngle = 125;
         }
-        else if(gamepad2.dpad_right){
+        else if(gamepad1.dpad_right){
             RPMSpeed = 192;
             //hood.setHoodPos(0.78);
             gyroShootPos = 47;
             //targetAngle = 125;
         }
-        else if(gamepad2.dpad_down){
+        else if(gamepad1.dpad_down){
             RPMSpeed = 225;
             //hood.setHoodPos(0.8);
             gyroShootPos = 47;
@@ -172,6 +176,12 @@ public class RedTele extends OpMode {
         }
         else if(gamepad2.a){
             //hood.manualDown();
+        }
+
+        if(endGameStart >= getRuntime() && !isEndGame){
+            gamepad1.rumbleBlips(5);
+            gamepad2.rumbleBlips(5);
+            isEndGame = true;
         }
 
         /*

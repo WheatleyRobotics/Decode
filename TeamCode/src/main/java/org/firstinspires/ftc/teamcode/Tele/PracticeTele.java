@@ -8,6 +8,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Commands.AutoAim;
 
 @Configurable
 @TeleOp
-public class BlueTele extends OpMode {
+public class PracticeTele extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90)); //See ExampleAuto to understand how to use this
     private TelemetryManager telemetryM;
@@ -27,10 +28,12 @@ public class BlueTele extends OpMode {
     //private Hood hood;
     private AutoAim autoAim;
 
-    private int gyroPos = 180; //RED: 0, BLUE: 180, And Practice: 90
+    private int gyroPos = 90; //RED: 0, BLUE: 180, And Practice: 90
     private double gyroShootPos = 100;
     private boolean lastRightTrigger = false;
 
+    private double endGameStart;
+    private boolean  isEndGame;
 
     private int RPMSpeed;
     private double hoodPos;
@@ -54,7 +57,7 @@ public class BlueTele extends OpMode {
 
         //pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
 
-        //hood.setRange(0, 0.9);
+        ///hood.setRange(0, 0.9);
         //hood.resetServo();
     }
 
@@ -65,6 +68,7 @@ public class BlueTele extends OpMode {
         //If you don't pass anything in, it uses the default (false)
         //hood.setHoodPos(0);
         follower.startTeleopDrive();
+        endGameStart = getRuntime() + 90;
     }
 
     @Override
@@ -172,6 +176,12 @@ public class BlueTele extends OpMode {
         }
         else if(gamepad2.a){
             //hood.manualDown();
+        }
+
+        if(endGameStart >= getRuntime() && !isEndGame){
+            gamepad1.rumbleBlips(5);
+            gamepad2.rumbleBlips(5);
+            isEndGame = true;
         }
 
         /*
