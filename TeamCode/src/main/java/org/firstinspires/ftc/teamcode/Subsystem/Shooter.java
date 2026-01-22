@@ -14,10 +14,10 @@ public class Shooter {
     private final CRServo indexerLeft, indexerRight;
 
     // ---------- PID CONSTANTS (TUNE THESE) ----------
-    private static final double kP = 51; //12
+    private static final double kP = 12; //51
     private static final double kI = 0; //0
     private static final double kD = 0.002; // 0.002
-    private static final double kF = 19.4; //0.4
+    private static final double kF = 0.4; //19.4
 
     // ---------- ENCODER CONSTANTS ----------
     private static final double TICKS_PER_REV = 537.7; // goBILDA 5202

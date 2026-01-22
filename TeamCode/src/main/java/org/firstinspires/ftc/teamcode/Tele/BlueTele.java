@@ -6,11 +6,13 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.Drivetrain;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
+import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Commands.AutoAim;
@@ -22,6 +24,7 @@ public class BlueTele extends OpMode {
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90)); //See ExampleAuto to understand how to use this
     private TelemetryManager telemetryM;
     private Drivetrain drivetrain;
+    private LimeLight limeLight;
     private Shooter shooter;
     private Intake intake;
     //private Hood hood;
@@ -48,10 +51,10 @@ public class BlueTele extends OpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooter = new Shooter(hardwareMap);
+        limeLight = new LimeLight(hardwareMap);
         intake = new Intake(hardwareMap);
         //hood = new Hood(hardwareMap);
         autoAim = new AutoAim(hardwareMap);
-
         //pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
 
         //hood.setRange(0, 0.9);
@@ -72,6 +75,7 @@ public class BlueTele extends OpMode {
         //Call this once per loop
         follower.update();
         telemetryM.update();
+        limeLight.update();
 
         //follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x*0.8, false, Math.toRadians(gyroPos));
 

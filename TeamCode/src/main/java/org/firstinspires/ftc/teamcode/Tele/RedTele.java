@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
+import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Commands.AutoAim;
@@ -23,6 +24,7 @@ public class RedTele extends OpMode {
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90)); //See ExampleAuto to understand how to use this
     private TelemetryManager telemetryM;
     private Drivetrain drivetrain;
+    private LimeLight limeLight;
     private Shooter shooter;
     private Intake intake;
     //private Hood hood;
@@ -33,7 +35,7 @@ public class RedTele extends OpMode {
     private boolean lastRightTrigger = false;
 
     private double endGameStart;
-    private boolean  isEndGame;
+    private boolean isEndGame;
 
     private int RPMSpeed;
     private double hoodPos;
@@ -51,6 +53,7 @@ public class RedTele extends OpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooter = new Shooter(hardwareMap);
+        limeLight = new LimeLight(hardwareMap);
         intake = new Intake(hardwareMap);
         //hood = new Hood(hardwareMap);
         autoAim = new AutoAim(hardwareMap);
@@ -76,6 +79,7 @@ public class RedTele extends OpMode {
         //Call this once per loop
         follower.update();
         telemetryM.update();
+        limeLight.update();
 
         //follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x*0.8, false, Math.toRadians(gyroPos));
 
