@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 
 @TeleOp
 public class LimeLightTele extends OpMode {
-
     private LimeLight limeLight;
 
     @Override
@@ -18,15 +17,16 @@ public class LimeLightTele extends OpMode {
     @Override
     public void loop() {
         limeLight.update();
+        telemetry.update();
 
         if (limeLight.hasValidTarget()) {
-            telemetry.addData("Tx", limeLight.getTx());
-            telemetry.addData("Ty", limeLight.getTy());
-            telemetry.addData("Ta", limeLight.getTa());
-        } else {
-            telemetry.addLine("No Limelight target");
+            telemetry.addData("Tx: ", limeLight.getTx());
+            telemetry.addData("Ty: ", limeLight.getTy());
+            telemetry.addData("Ta: ", limeLight.getTa());
+            telemetry.addData("Bot Pose: ", limeLight.getBotPose());
         }
-
-        telemetry.update();
+        else {
+            telemetry.addLine("No April Tags In Sight");
+        }
     }
 }

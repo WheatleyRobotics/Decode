@@ -4,9 +4,11 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
 public class LimeLight {
     private Limelight3A limelight;
-    private LLResult latestResult;
+    private LLResult llResult;
 
     public LimeLight(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "Limelight");
@@ -15,31 +17,36 @@ public class LimeLight {
     }
 
     public void update() {
-        latestResult = limelight.getLatestResult();
+        llResult = limelight.getLatestResult();
     }
 
     public boolean hasValidTarget() {
-        return latestResult != null && latestResult.isValid();
+        return llResult != null && llResult.isValid();
     }
 
     public double getTx() {
         if (hasValidTarget()) {
-            return latestResult.getTx();
+            return llResult.getTx();
         }
         return 0.0;
     }
 
     public double getTy() {
         if (hasValidTarget()) {
-            return latestResult.getTy();
+            return llResult.getTy();
         }
         return 0.0;
     }
 
     public double getTa() {
         if (hasValidTarget()) {
-            return latestResult.getTa();
+            return llResult.getTa();
         }
         return 0.0;
+    }
+
+    public Pose3D getBotPose(){
+        Pose3D botPose = llResult.getBotpose_MT2();
+        return botPose;
     }
 }
