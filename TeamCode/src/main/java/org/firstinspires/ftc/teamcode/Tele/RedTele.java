@@ -53,7 +53,7 @@ public class RedTele extends OpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooter = new Shooter(hardwareMap);
-        //limeLight = new LimeLight(hardwareMap);
+        limeLight = new LimeLight(hardwareMap);
         intake = new Intake(hardwareMap);
         //hood = new Hood(hardwareMap);
         autoAim = new AutoAim(hardwareMap);
