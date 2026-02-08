@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name = "Shooter PIDF Tuner Graph", group = "Tuning")
 @Configurable
 public class ShooterPIDFTunerGraph extends OpMode {
-
     private DcMotorEx shooterMotor;
     private ElapsedTime timer;
 
@@ -33,7 +32,6 @@ public class ShooterPIDFTunerGraph extends OpMode {
     public void init() {
         timer = new ElapsedTime();
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
 
         shooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
 
