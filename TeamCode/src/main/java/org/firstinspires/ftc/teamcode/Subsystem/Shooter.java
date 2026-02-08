@@ -16,7 +16,7 @@ public class Shooter {
 
     // ---------- PID CONSTANTS (TUNE THESE) ----------
     private static final double kP = 0.0019; //12
-    private static final double kI = 0; //0
+    private static final double kI = 0.25; //0
     private static final double kD = 0.05; // 0.002
     private static final double kF = 12; //0.4
 
