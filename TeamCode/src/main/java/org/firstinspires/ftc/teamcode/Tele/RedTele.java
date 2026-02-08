@@ -35,7 +35,7 @@ public class RedTele extends OpMode {
     private Hood hood;
     private AutoAim autoAim;
 
-    private int gyroPos = 0;
+    private int gyroPos = 0; //RED: 0, BLUE: 180, And Practice: 90
     private double gyroShootPos = 100;
     private boolean lastRightTrigger = false;
 

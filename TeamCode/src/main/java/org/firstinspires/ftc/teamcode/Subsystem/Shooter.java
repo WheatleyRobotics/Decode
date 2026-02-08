@@ -51,7 +51,7 @@ public class Shooter {
         //Indexer Calibration
         indexerLeft = hardwareMap.get(CRServo.class, "IndexerLeft");
         indexerRight = hardwareMap.get(CRServo.class, "IndexerRight");
-        indexerRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        //indexerRight.setDirection(DcMotorSimple.Direction.REVERSE);
         indexerLeft.setDirection(CRServo.Direction.REVERSE);
 
         //Timer Calibration
