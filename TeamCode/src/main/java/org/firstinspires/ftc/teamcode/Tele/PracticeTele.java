@@ -29,7 +29,6 @@ public class PracticeTele extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90));
     private TelemetryManager telemetryM;
-    private Drivetrain drivetrain;
     private Shooter shooter;
     private Intake intake;
     private Hood hood;
