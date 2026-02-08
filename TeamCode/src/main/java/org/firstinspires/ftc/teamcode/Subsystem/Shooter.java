@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -50,7 +51,8 @@ public class Shooter {
         //Indexer Calibration
         indexerLeft = hardwareMap.get(CRServo.class, "IndexerLeft");
         indexerRight = hardwareMap.get(CRServo.class, "IndexerRight");
-        indexerRight.setDirection(CRServo.Direction.REVERSE);
+        indexerRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        indexerLeft.setDirection(CRServo.Direction.REVERSE);
 
         //Timer Calibration
         timer.reset();
@@ -128,5 +130,9 @@ public class Shooter {
 
     public double getCurrentRPM(){
         return currentRPM;
+    }
+
+    public double getPose(){
+        return shooterMotor.getCurrentPosition();
     }
 }

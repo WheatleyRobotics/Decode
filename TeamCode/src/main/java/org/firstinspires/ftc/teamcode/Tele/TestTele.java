@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 @Configurable
 @TeleOp
-public class PracticeTele extends OpMode {
+public class TestTele extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90)); //See ExampleAuto to understand how to use this
     private TelemetryManager telemetryM;

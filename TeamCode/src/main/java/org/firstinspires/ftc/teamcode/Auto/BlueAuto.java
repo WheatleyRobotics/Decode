@@ -9,12 +9,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
+import org.firstinspires.ftc.teamcode.PoseKalmanFilter;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Blue Auto")
 public class BlueAuto extends OpMode {
+    private PoseKalmanFilter poseKalmanFilter;
+
     private Follower follower;
     private Shooter shooter;
     private Intake intake;

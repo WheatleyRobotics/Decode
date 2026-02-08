@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
+import com.pedropathing.control.KalmanFilter;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -32,7 +33,7 @@ public class LimeLight {
         llResult = limelight.getLatestResult();
         follower.update();
 
-        follower.setPose(getRobotPoseFromCamera());
+        follower.setPose(getPedroPose());
 
         if (following && !follower.isBusy()) following = false;
     }
@@ -67,11 +68,26 @@ public class LimeLight {
         return botPose;
     }
 
+    /*
     private Pose getRobotPoseFromCamera() {
         //Fill this out to get the robot Pose from the camera's output (apply any filters if you need to using follower.getPose() for fusion)
         //TODO: Pedro Pathing has built-in KalmanFilter and LowPassFilter classes you can use for this
 
         //Use this to convert standard FTC coordinates to standard Pedro Pathing coordinates
         return new Pose(0, 0, 0, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
+    }
+     */
+
+    public Pose getPedroPose() {
+        Pose3D pose = llResult.getBotpose_MT2();
+
+        Pose ftcPose = new Pose(
+                pose.getPosition().x,
+                pose.getPosition().y,
+                pose.getOrientation().getYaw(),
+                FTCCoordinates.INSTANCE
+        );
+
+        return ftcPose.getAsCoordinateSystem(PedroCoordinates.INSTANCE);
     }
 }
