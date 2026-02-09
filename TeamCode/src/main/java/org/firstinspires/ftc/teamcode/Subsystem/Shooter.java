@@ -1,138 +1,106 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-//import org.firstinspires.ftc.teamcode.Subsystem.Intake;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Shooter {
-    //private Intake intake;
 
-    private final DcMotor shooterMotor;
+    private final DcMotorEx shooterMotor;
     private final CRServo indexerLeft, indexerRight;
 
-    // ---------- PID CONSTANTS (TUNE THESE) ----------
-    private static final double kP = 0.0019; //12
-    private static final double kI = 0.25; //0
-    private static final double kD = 0.05; // 0.002
-    private static final double kF = 12; //0.4
+    // ---------- FINAL PIDF ----------
+    private static final double kP = 0.019;
+    private static final double kI = 0.35;
+    private static final double kD = 0.002;
+    private static final double kF = 12;
 
-    // ---------- ENCODER CONSTANTS ----------
-    private static final double TICKS_PER_REV = 537.7; // goBILDA 5202
-    // 5203 = 312
+    // Motor RPM = Wheel RPM * GEAR_RATIO
+    private static final double GEAR_RATIO = 1;
 
-    // ---------- RPM CONTROL ----------
-    private static final double RPM_TOLERANCE = 20; //25  acceptable error
+    private static final double RPM_TOLERANCE = 5;
+    private double targetWheelRPM = 0;
+    private double currentWheelRPM = 0;
 
-    private double targetRPM = 0;
-    private double integral = 0;
-    private double lastError = 0;
-
-    private int lastPosition = 0;
-    private double lastTime = 0;
-
-    private double currentRPM = 0;
-
-    private static final double indexersSpeed = 1;
-
-    private final ElapsedTime timer = new ElapsedTime();
+    // Auto-feed speed
+    private static final double indexersSpeed = 1.0;
 
     public Shooter(HardwareMap hardwareMap) {
-        //Shooter Calibration
-        shooterMotor = hardwareMap.get(DcMotor.class, "Shooter");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
         shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         shooterMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        //Indexer Calibration
+        shooterMotor.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+
         indexerLeft = hardwareMap.get(CRServo.class, "IndexerLeft");
         indexerRight = hardwareMap.get(CRServo.class, "IndexerRight");
-        //indexerRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Use hardware direction reversal
         indexerLeft.setDirection(CRServo.Direction.REVERSE);
-
-        //Timer Calibration
-        timer.reset();
-        lastTime = timer.seconds();
     }
 
-    public void setTargetRPM(double rpm) {
-        targetRPM = rpm;
+    // ---------- TARGET RPM ----------
+    public void setTargetRPM(double wheelRPM) {
+        targetWheelRPM = wheelRPM;
     }
 
-    public boolean isAtTargetRPM() {
-        return Math.abs(targetRPM - currentRPM) <= RPM_TOLERANCE;
-    }
-
+    // ---------- UPDATE ----------
     public void update() {
-        double currentTime = timer.seconds();
-        double deltaTime = currentTime - lastTime;
-        if (deltaTime <= 0) return;
+        double ticksPerRev = shooterMotor.getMotorType().getTicksPerRev();
 
-        int currentPosition = shooterMotor.getCurrentPosition();
-        int deltaTicks = currentPosition - lastPosition;
+        if (targetWheelRPM > 0) {
+            double motorRPM = targetWheelRPM * GEAR_RATIO;
 
-        currentRPM = (deltaTicks / TICKS_PER_REV) / deltaTime * 60.0;
+            // Clip motor RPM to max motor RPM
+            motorRPM = Math.min(motorRPM, shooterMotor.getMotorType().getMaxRPM());
 
-        double error = targetRPM - currentRPM;
+            double targetTicksPerSecond = (motorRPM / 60.0) * ticksPerRev;
+            shooterMotor.setVelocity(targetTicksPerSecond);
+        } else {
+            shooterMotor.setPower(0.2); // idle spin
+        }
 
-        integral += error * deltaTime;
-        double derivative = (error - lastError) / deltaTime;
-
-        double power = (kP * error) + (kI * integral) + (kD * derivative) + (kF * targetRPM);
-
-        power = Math.max(0.0, Math.min(1.0, power));
-        shooterMotor.setPower(power);
+        double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;
+        currentWheelRPM = motorRPM / GEAR_RATIO;
 
         // ---------- AUTO FEED ----------
-
-        if (targetRPM > 0 && isAtTargetRPM()) {
+        if (targetWheelRPM > 0 && isAtTargetRPM()) {
             indexerLeft.setPower(indexersSpeed);
-            indexerRight.setPower(indexersSpeed);
+            indexerRight.setPower(indexersSpeed); // same power, hardware handles reversal
         }
-
-        /*
-        else {
-            indexerLeft.setPower(0);
-            indexerRight.setPower(0);
-        }
-        */
-
-        lastError = error;
-        lastPosition = currentPosition;
-        lastTime = currentTime;
     }
 
-    public void setIndexerPower(double setIndexersSpeed){
-        indexerLeft.setPower(setIndexersSpeed);
-        indexerRight.setPower(setIndexersSpeed);
-    }
-
+    // ---------- STOP ----------
     public void stopShooter() {
-        targetRPM = 0;
-        shooterMotor.setPower(0.3);
+        targetWheelRPM = 0;
+        //shooterMotor.setPower(0.3);
         indexerLeft.setPower(-1);
         indexerRight.setPower(-1);
-        integral = 0;
     }
 
-    // ---------- TELEMETRY ----------
-    public double RPMDiff(){
-        return Math.abs(targetRPM - currentRPM);
+    // ---------- INDEXER ----------
+    public void setIndexerPower(double power) {
+        indexerLeft.setPower(power);
+        indexerRight.setPower(power); // same power
     }
 
-    public double getTargetRPM(){
-        return targetRPM;
+    // ---------- STATUS ----------
+    public boolean isAtTargetRPM() {
+        return Math.abs(targetWheelRPM - currentWheelRPM) <= RPM_TOLERANCE;
     }
 
-    public double getCurrentRPM(){
-        return currentRPM;
+    public double getTargetRPM() {
+        return targetWheelRPM;
     }
 
-    public double getPose(){
-        return shooterMotor.getCurrentPosition();
+    public double getCurrentRPM() {
+        return currentWheelRPM;
+    }
+
+    public double RPMDiff() {
+        return Math.abs(targetWheelRPM - currentWheelRPM);
     }
 }

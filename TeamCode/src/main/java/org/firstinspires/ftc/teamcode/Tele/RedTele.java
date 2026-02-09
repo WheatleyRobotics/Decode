@@ -5,7 +5,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.Drivetrain;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
@@ -14,14 +13,11 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Commands.AutoAim;
-
-import java.util.function.Supplier;
 
 @Configurable
 @TeleOp
@@ -118,17 +114,17 @@ public class RedTele extends OpMode {
         }
 
         if(gamepad1.dpad_up){
-            RPMSpeed = 130;
+            RPMSpeed = 20;
             hood.setHoodPos(0.6);
             gyroShootPos = 130;
         }
         else if(gamepad1.dpad_right){
-            RPMSpeed = 192;
+            RPMSpeed = 35;
             hood.setHoodPos(0.78);
             gyroShootPos = 137;
         }
         else if(gamepad1.dpad_down){
-            RPMSpeed = 225;
+            RPMSpeed = 50;
             hood.setHoodPos(0.8);
             gyroShootPos = 100;
         }

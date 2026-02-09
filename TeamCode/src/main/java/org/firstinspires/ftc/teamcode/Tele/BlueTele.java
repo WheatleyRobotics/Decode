@@ -118,17 +118,17 @@ public class BlueTele extends OpMode {
         }
 
         if(gamepad1.dpad_up){
-            RPMSpeed = 130;
+            RPMSpeed = 20;
             hood.setHoodPos(0.6);
             gyroShootPos = 130;
         }
         else if(gamepad1.dpad_right){
-            RPMSpeed = 192;
+            RPMSpeed = 35;
             hood.setHoodPos(0.78);
             gyroShootPos = 137;
         }
         else if(gamepad1.dpad_down){
-            RPMSpeed = 225;
+            RPMSpeed = 50;
             hood.setHoodPos(0.8);
             gyroShootPos = 100;
         }
