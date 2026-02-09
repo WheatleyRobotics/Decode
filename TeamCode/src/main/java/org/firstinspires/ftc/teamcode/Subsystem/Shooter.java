@@ -6,15 +6,14 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Shooter {
-
     private final DcMotorEx shooterMotor;
     private final CRServo indexerLeft, indexerRight;
 
     // ---------- FINAL PIDF ----------
-    private static final double kP = 0.019;
-    private static final double kI = 0.35;
-    private static final double kD = 0.002;
-    private static final double kF = 12;
+    private static final double kP = 80;
+    private static final double kI = 0;
+    private static final double kD = 8;
+    private static final double kF = 18;
 
     // Motor RPM = Wheel RPM * GEAR_RATIO
     private static final double GEAR_RATIO = 1;
