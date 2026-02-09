@@ -17,7 +17,6 @@ import org.firstinspires.ftc.teamcode.Commands.AutoAim;
 @Configurable
 @TeleOp
 public class RedTele extends OpMode {
-
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90));
 
@@ -55,7 +54,6 @@ public class RedTele extends OpMode {
 
     @Override
     public void start() {
-        hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
     }
 
@@ -79,7 +77,6 @@ public class RedTele extends OpMode {
 
         lastRightTrigger = rightTriggerPressed;
 
-        // Cancel auto aim if driver turns manually
         if (Math.abs(gamepad1.right_stick_x) > 0.08) {
             autoAimActive = false;
         }
@@ -111,7 +108,7 @@ public class RedTele extends OpMode {
 
         if (gamepad1.dpad_up) {
             RPMSpeed = TeleConstant.bumperUpRPM;
-            hood.setHoodPos(TeleConstant.bumperUpHooodPos);
+            hood.setHoodPos(TeleConstant.bumperUpHoodPos);
             gyroShootPos = TeleConstant.bumperUpGyro;
         }
         else if (gamepad1.dpad_right) {

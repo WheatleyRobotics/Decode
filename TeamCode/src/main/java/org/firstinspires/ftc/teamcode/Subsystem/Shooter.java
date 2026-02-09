@@ -59,7 +59,7 @@ public class Shooter {
             double targetTicksPerSecond = (motorRPM / 60.0) * ticksPerRev;
             shooterMotor.setVelocity(targetTicksPerSecond);
         } else {
-            shooterMotor.setPower(0.2); // idle spin
+            shooterMotor.setPower(0.3); // idle spin
         }
 
         double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;

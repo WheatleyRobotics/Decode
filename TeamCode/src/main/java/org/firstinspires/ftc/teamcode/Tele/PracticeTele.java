@@ -3,52 +3,45 @@ package org.firstinspires.ftc.teamcode.Tele;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.pedropathing.Drivetrain;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.HeadingInterpolator;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Commands.AutoAim;
 
-import java.util.function.Supplier;
-
 @Configurable
 @TeleOp
 public class PracticeTele extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(71.7, 9, Math.toRadians(90));
+
     private TelemetryManager telemetryM;
+
     private Shooter shooter;
     private Intake intake;
     private Hood hood;
     private AutoAim autoAim;
 
-    private int gyroPos = 100; //RED: 0, BLUE: 180, And Practice: 90
+    private int gyroPos = 90; // RED: 0, BLUE: 180, PRACTICE: 90
     private double gyroShootPos = 100;
+
     private boolean lastRightTrigger = false;
+    private boolean autoAimActive = false;
 
     private int RPMSpeed;
-    private double hoodPos;
-
-    double turnInput = 0;
-    boolean autoAimActive = false;
+    private double turnInput = 0;
 
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
+
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooter = new Shooter(hardwareMap);
@@ -61,7 +54,6 @@ public class PracticeTele extends OpMode {
 
     @Override
     public void start() {
-        hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
     }
 
@@ -77,7 +69,7 @@ public class PracticeTele extends OpMode {
             autoAim.resetGyro(gyroPos);
         }
 
-        boolean rightTriggerPressed = gamepad1.right_trigger > 0.8;
+        boolean rightTriggerPressed = gamepad1.left_trigger > 0.8;
 
         if (rightTriggerPressed && !lastRightTrigger) {
             autoAimActive = true;
@@ -85,12 +77,9 @@ public class PracticeTele extends OpMode {
 
         lastRightTrigger = rightTriggerPressed;
 
-        // -------- FIX STARTS HERE --------
-        // If driver tries to turn, cancel auto aim
         if (Math.abs(gamepad1.right_stick_x) > 0.08) {
             autoAimActive = false;
         }
-        // -------- FIX ENDS HERE --------
 
         if (autoAimActive) {
             turnInput = autoAim.getTurnPower(gyroShootPos);
@@ -102,24 +91,25 @@ public class PracticeTele extends OpMode {
             turnInput = -gamepad1.right_stick_x * 0.8;
         }
 
+        // ✅ FIELD-CENTRIC FIX IS HERE
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
                 turnInput,
-                false,
+                false,                         // <-- MUST be true for field-centric
                 Math.toRadians(gyroPos)
         );
 
-        if (gamepad1.right_bumper) {
+        if (gamepad1.right_trigger > 0.8) {
             shooter.setTargetRPM(RPMSpeed);
         }
-        else{
+        else {
             shooter.stopShooter();
         }
 
         if (gamepad1.dpad_up) {
             RPMSpeed = TeleConstant.bumperUpRPM;
-            hood.setHoodPos(TeleConstant.bumperUpHooodPos);
+            hood.setHoodPos(TeleConstant.bumperUpHoodPos);
             gyroShootPos = TeleConstant.bumperUpGyro;
         }
         else if (gamepad1.dpad_right) {
@@ -144,25 +134,25 @@ public class PracticeTele extends OpMode {
         else if (gamepad1.y) {
             intake.intakeOut();
         }
-        else{
+        else {
             intake.stopIntaking();
             intake.stopTunnel();
         }
 
         shooter.update();
 
-        if(gamepad2.y){
+        if (gamepad2.y) {
             hood.manualUp();
         }
-        else if(gamepad2.a){
+        else if (gamepad2.a) {
             hood.manualDown();
         }
 
-        telemetry.addData("Shooter Ready:", shooter.isAtTargetRPM());
-        telemetry.addData("Target RPM:", shooter.getTargetRPM());
-        telemetry.addData("Current RPM:", shooter.getCurrentRPM());
-        telemetry.addData("RPM Difference:", shooter.RPMDiff());
-        telemetry.addData("Servo Pos: ", hood.getServoPos());
+        telemetry.addData("Shooter Ready", shooter.isAtTargetRPM());
+        telemetry.addData("Target RPM", shooter.getTargetRPM());
+        telemetry.addData("Current RPM", shooter.getCurrentRPM());
+        telemetry.addData("RPM Difference", shooter.RPMDiff());
+        telemetry.addData("Servo Pos", hood.getServoPos());
         telemetry.addData("Pinpoint Yaw (deg)", autoAim.getYaw());
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);

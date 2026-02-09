@@ -11,14 +11,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.PoseKalmanFilter;
 
-@Autonomous(name = "Blue Auto")
-public class BlueAuto extends OpMode {
+@Autonomous(name = "Blue Auto Vision")
+public class BlueAutoVision extends OpMode {
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
+    private LimeLight limelight;
     private Hood hood;
+
+    private PoseKalmanFilter poseKalman;
 
     private Timer pathTimer;
     private Timer shootDelayTimer;
@@ -49,7 +54,6 @@ public class BlueAuto extends OpMode {
     private PathState pathState;
     private final int intakeBallsGyroPos = 181;
 
-    // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(27.2, 132.283, Math.toRadians(143));
     private final Pose bumperUpPose = new Pose(27.2, 140.283, Math.toRadians(137));
     private final Pose firstIntakePose = new Pose(45.8215, 84.7384, Math.toRadians(intakeBallsGyroPos));
@@ -117,24 +121,55 @@ public class BlueAuto extends OpMode {
                 .build();
     }
 
-    public void setPathState(PathState newState) {
-        pathState = newState;
-        pathTimer.resetTimer();
-        if (newState.toString().startsWith("SHOOT_")) {
-            shootDelayTimer = new Timer(); // reset shoot delay when entering shoot state
-        }
+    @Override
+    public void init() {
+        pathTimer = new Timer();
+
+        follower = Constants.createFollower(hardwareMap);
+        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
+        limelight = new LimeLight(hardwareMap);
+        hood = new Hood(hardwareMap);
+
+        follower.setPose(startingPose);
+        poseKalman = new PoseKalmanFilter(startingPose);
+
+        buildPaths();
+        pathState = PathState.SPIN_UP_SHOOTER;
     }
 
-    private final double timeToShoot = 6;
-    private final double preLoadWait = 1.8;
+    @Override
+    public void loop() {
+        shooter.update();
+        follower.update();
+        limelight.update();
+
+        Pose odomPose = follower.getPose();
+        Pose visionPose = null;
+        boolean hasVision = limelight.hasValidTarget();
+
+        if (hasVision) {
+            visionPose = limelight.getPedroPose();
+        }
+
+        Pose fusedPose = poseKalman.update(odomPose, visionPose, hasVision);
+        follower.setPose(fusedPose);
+
+        statePathUpdate();
+
+        telemetry.addData("State", pathState);
+        telemetry.addData("Vision", hasVision);
+        telemetry.addData("Pose", fusedPose);
+        telemetry.update();
+    }
 
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
-                //hood.setHoodPos(0.6);
+                hood.setHoodPos(0.6);
                 shooter.setTargetRPM(130);
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
-                    setPathState(PathState.SHOOT_PRELOAD);
+                    pathState = PathState.SHOOT_PRELOAD;
                 }
                 break;
 
@@ -144,21 +179,20 @@ public class BlueAuto extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 2.7) {
                     shooter.stopShooter();
                     intake.stopIntaking();
-                    setPathState(PathState.GET_READY_TO_INTAKE_FIRST_BALLS);
+                    pathState = PathState.GET_READY_TO_INTAKE_FIRST_BALLS;
                 }
                 break;
 
-            // ===== FIRST BALLS =====
             case GET_READY_TO_INTAKE_FIRST_BALLS:
                 follower.followPath(setUpIntakeFirstBallsPos, true);
-                setPathState(PathState.INTAKE_FIRST_BALLS);
+                pathState = PathState.INTAKE_FIRST_BALLS;
                 break;
 
             case INTAKE_FIRST_BALLS:
                 intake.intakeIn();
                 if (!follower.isBusy()) {
                     follower.followPath(intakeFirstBallsPos, true);
-                    setPathState(PathState.DRIVE_TO_SHOOT_FIRST_BALLS);
+                    pathState = PathState.DRIVE_TO_SHOOT_FIRST_BALLS;
                 }
                 break;
 
@@ -166,34 +200,35 @@ public class BlueAuto extends OpMode {
                 if (!follower.isBusy()) {
                     intake.stopIntaking();
                     follower.followPath(shootFirstBallsPos, true);
-                    setPathState(PathState.SHOOT_FIRST_BALLS);
+                    pathState = PathState.SHOOT_FIRST_BALLS;
                 }
                 break;
 
             case SHOOT_FIRST_BALLS:
-                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
+                if (!follower.isBusy()) {
                     shooter.setTargetRPM(130);
-                    intake.intakeIn();
                     shooter.setIndexerPower(1);
-                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
+                    intake.intakeIn();
+                    if (pathTimer.getElapsedTimeSeconds() > 6) {
                         shooter.stopShooter();
                         intake.stopIntaking();
-                        setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
+                        pathState = PathState.GET_READY_TO_INTAKE_SECOND_BALLS;
                     }
                 }
                 break;
 
             // ===== SECOND BALLS =====
+            /*
             case GET_READY_TO_INTAKE_SECOND_BALLS:
                 follower.followPath(setUpIntakeSecondBallsPos, true);
-                setPathState(PathState.INTAKE_SECOND_BALLS);
+                setPathState(BlueAuto.PathState.INTAKE_SECOND_BALLS);
                 break;
 
             case INTAKE_SECOND_BALLS:
                 intake.intakeIn();
                 if (!follower.isBusy()) {
                     follower.followPath(intakeSecondBallsPos, true);
-                    setPathState(PathState.DRIVE_TO_SHOOT_SECOND_BALLS);
+                    setPathState(BlueAuto.PathState.DRIVE_TO_SHOOT_SECOND_BALLS);
                 }
                 break;
 
@@ -201,7 +236,7 @@ public class BlueAuto extends OpMode {
                 if (!follower.isBusy()) {
                     intake.stopIntaking();
                     follower.followPath(shootSecondBallsPos, true);
-                    setPathState(PathState.SHOOT_SECOND_BALLS);
+                    setPathState(BlueAuto.PathState.SHOOT_SECOND_BALLS);
                 }
                 break;
 
@@ -213,7 +248,7 @@ public class BlueAuto extends OpMode {
                     if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
-                        setPathState(PathState.GET_READY_TO_INTAKE_THIRD_BALLS);
+                        setPathState(BlueAuto.PathState.GET_READY_TO_INTAKE_THIRD_BALLS);
                     }
                 }
                 break;
@@ -221,14 +256,14 @@ public class BlueAuto extends OpMode {
             // ===== THIRD BALLS =====
             case GET_READY_TO_INTAKE_THIRD_BALLS:
                 follower.followPath(setUpIntakeThirdBallsPos, true);
-                setPathState(PathState.INTAKE_THIRD_BALLS);
+                setPathState(BlueAuto.PathState.INTAKE_THIRD_BALLS);
                 break;
 
             case INTAKE_THIRD_BALLS:
                 intake.intakeIn();
                 if (!follower.isBusy()) {
                     follower.followPath(intakeThirdBallsPos, true);
-                    setPathState(PathState.DRIVE_TO_SHOOT_THIRD_BALLS);
+                    setPathState(BlueAuto.PathState.DRIVE_TO_SHOOT_THIRD_BALLS);
                 }
                 break;
 
@@ -236,7 +271,7 @@ public class BlueAuto extends OpMode {
                 if (!follower.isBusy()) {
                     intake.stopIntaking();
                     follower.followPath(shootThirdBallsPos, true);
-                    setPathState(PathState.SHOOT_THIRD_BALLS);
+                    setPathState(BlueAuto.PathState.SHOOT_THIRD_BALLS);
                 }
                 break;
 
@@ -248,7 +283,7 @@ public class BlueAuto extends OpMode {
                     if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
-                        setPathState(PathState.ENDPOS);
+                        setPathState(BlueAuto.PathState.ENDPOS);
                     }
                 }
                 break;
@@ -256,40 +291,13 @@ public class BlueAuto extends OpMode {
             case ENDPOS:
                 //hood.setHoodPos(0);
                 follower.followPath(end, true);
-                setPathState(PathState.DONE);
+                setPathState(BlueAuto.PathState.DONE);
                 break;
+
+             */
 
             case DONE:
                 break;
         }
-    }
-
-    @Override
-    public void init() {
-        pathTimer = new Timer();
-
-        follower = Constants.createFollower(hardwareMap);
-        shooter = new Shooter(hardwareMap);
-        intake = new Intake(hardwareMap);
-        //hood = new Hood(hardwareMap);
-
-        buildPaths();
-        follower.setPose(startingPose);
-
-        pathState = PathState.SPIN_UP_SHOOTER;
-    }
-
-    @Override
-    public void loop() {
-        shooter.update();
-        follower.update();
-        statePathUpdate();
-
-        telemetry.addData("State", pathState);
-        telemetry.addData("Follower Busy", follower.isBusy());
-        telemetry.addData("Shooter RPM", shooter.getCurrentRPM());
-        telemetry.addData("Target RPM", shooter.getTargetRPM());
-        //telemetry.addData("Hood Pos", hood.getServoPos());
-        telemetry.update();
     }
 }
