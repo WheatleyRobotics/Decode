@@ -8,19 +8,19 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-//import org.firstinspires.ftc.teamcode.Subsystem.Hood;
+import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.Tele.TeleConstant;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-
-@Autonomous(name = "Red Auto")
-public class RedAuto extends OpMode {
+@Autonomous(name = "Blue Auto With Constants ")
+public class BlueAutoWAutoConstants extends OpMode {
+    private final AutoConstants autoConstants = new AutoConstants();
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
-    //private Hood hood;
-    private AutoConstants autoConstants;
+    private Hood hood;
 
     private Timer pathTimer;
     private Timer shootDelayTimer;
@@ -48,28 +48,24 @@ public class RedAuto extends OpMode {
         DONE
     }
 
-
     private PathState pathState;
-    private final int intakeBallsGyroPos = 0;
-
+    //private final int intakeBallsGyroPos = 181;
 
     // ===== POSES (UNCHANGED) =====
-    private final Pose startingPose = new Pose(125.30878186968842, 120.83336674656788, Math.toRadians(35));
-    private final Pose bumperUpPose = new Pose(123.56, 119.22153846153844, Math.toRadians(35));
-    private final Pose firstIntakePose = new Pose(96.81019830028329, 80.7384, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeFirstBallsPose = new Pose(132, 84.7323, Math.toRadians(intakeBallsGyroPos));
-    private final Pose secondIntakePose = new Pose(98.12181303116145, 59.29846153846154, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeSecondBallsPose = new Pose(128, 58.94617563739374, Math.toRadians(intakeBallsGyroPos));
-    private final Pose thirdIntakePose = new Pose(102.39093484419263, 30.22379603399434, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeThirdBallsPose = new Pose(132.9830028328612, 34.61189801699716, Math.toRadians(intakeBallsGyroPos));
-    private final Pose endingPoint = new Pose(131.71954674220962, 58.49008498583567, Math.toRadians(intakeBallsGyroPos));
-
+    private final Pose startingPose = new Pose(27.2, 132.283, Math.toRadians(143));
+    private final Pose bumperUpPose = new Pose(27.2, 140.283, Math.toRadians(137));
+    private final Pose firstIntakePose = new Pose(45.8215, 84.7384, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose intakeFirstBallsPose = new Pose(30, 84.7323, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(45.8668, 61.4475, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose intakeSecondBallsPose = new Pose(30, 59.5580, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose thirdIntakePose = new Pose(45.8668, 35.6317, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose intakeThirdBallsPose = new Pose(30, 35.6317, Math.toRadians(autoConstants.intakeBallsGyroPos));
+    private final Pose endingPoint = new Pose(20, 56.8583, Math.toRadians(autoConstants.intakeBallsGyroPos));
 
     private PathChain setUpIntakeFirstBallsPos, intakeFirstBallsPos, shootFirstBallsPos,
             setUpIntakeSecondBallsPos, intakeSecondBallsPos, shootSecondBallsPos,
             setUpIntakeThirdBallsPos, intakeThirdBallsPos, shootThirdBallsPos,
             end;
-
 
     public void buildPaths() {
         setUpIntakeFirstBallsPos = follower.pathBuilder()
@@ -77,61 +73,51 @@ public class RedAuto extends OpMode {
                 .setLinearHeadingInterpolation(startingPose.getHeading(), firstIntakePose.getHeading())
                 .build();
 
-
         intakeFirstBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(firstIntakePose, intakeFirstBallsPose))
                 .setLinearHeadingInterpolation(firstIntakePose.getHeading(), intakeFirstBallsPose.getHeading())
                 .build();
 
-
         shootFirstBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeFirstBallsPose, bumperUpPose))
+                .addPath(new BezierLine(intakeFirstBallsPose, startingPose))
                 .setLinearHeadingInterpolation(intakeFirstBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
 
-
         setUpIntakeSecondBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(bumperUpPose, secondIntakePose))
-                .setLinearHeadingInterpolation(bumperUpPose.getHeading(), secondIntakePose.getHeading())
+                .addPath(new BezierLine(startingPose, secondIntakePose))
+                .setLinearHeadingInterpolation(startingPose.getHeading(), secondIntakePose.getHeading())
                 .build();
-
 
         intakeSecondBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(secondIntakePose, intakeSecondBallsPose))
                 .setLinearHeadingInterpolation(secondIntakePose.getHeading(), intakeSecondBallsPose.getHeading())
                 .build();
 
-
         shootSecondBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeSecondBallsPose, bumperUpPose))
+                .addPath(new BezierLine(intakeSecondBallsPose, startingPose))
                 .setLinearHeadingInterpolation(intakeSecondBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
-
 
         setUpIntakeThirdBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(startingPose, thirdIntakePose))
                 .setLinearHeadingInterpolation(startingPose.getHeading(), thirdIntakePose.getHeading())
                 .build();
 
-
         intakeThirdBallsPos = follower.pathBuilder()
                 .addPath(new BezierLine(thirdIntakePose, intakeThirdBallsPose))
                 .setLinearHeadingInterpolation(thirdIntakePose.getHeading(), intakeThirdBallsPose.getHeading())
                 .build();
 
-
         shootThirdBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeThirdBallsPose, bumperUpPose))
+                .addPath(new BezierLine(intakeThirdBallsPose, startingPose))
                 .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), bumperUpPose.getHeading())
                 .build();
-
 
         end = follower.pathBuilder()
                 .addPath(new BezierLine(startingPose, endingPoint))
                 .setLinearHeadingInterpolation(startingPose.getHeading(), endingPoint.getHeading())
                 .build();
     }
-
 
     public void setPathState(PathState newState) {
         pathState = newState;
@@ -141,37 +127,36 @@ public class RedAuto extends OpMode {
         }
     }
 
-    private final double preLoadWait = 2;
+    /*
     private final double timeToShoot = 6;
+    private final double preLoadWait = 1.8;
+     */
 
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
                 //hood.setHoodPos(0.6);
-                shooter.setTargetRPM(130);
-                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                shooter.setTargetRPM(TeleConstant.bumperUpRPM);
+                if (pathTimer.getElapsedTimeSeconds() > autoConstants.spinUpShooterWait) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;
 
-
             case SHOOT_PRELOAD:
-                shooter.setIndexerPower(1);
+                shooter.setIndexerPower(autoConstants.indexerPower);
                 intake.intakeIn();
-                if (pathTimer.getElapsedTimeSeconds() > 2.7) {
+                if (pathTimer.getElapsedTimeSeconds() > autoConstants.shootFirstBalls) {
                     shooter.stopShooter();
                     intake.stopIntaking();
                     setPathState(PathState.GET_READY_TO_INTAKE_FIRST_BALLS);
                 }
                 break;
 
-
             // ===== FIRST BALLS =====
             case GET_READY_TO_INTAKE_FIRST_BALLS:
                 follower.followPath(setUpIntakeFirstBallsPos, true);
                 setPathState(PathState.INTAKE_FIRST_BALLS);
                 break;
-
 
             case INTAKE_FIRST_BALLS:
                 intake.intakeIn();
@@ -181,7 +166,6 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             case DRIVE_TO_SHOOT_FIRST_BALLS:
                 if (!follower.isBusy()) {
                     intake.stopIntaking();
@@ -190,13 +174,12 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             case SHOOT_FIRST_BALLS:
-                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
-                    shooter.setTargetRPM(130);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootDelayTimer) {
+                    shooter.setTargetRPM(TeleConstant.bumperUpRPM);
                     intake.intakeIn();
-                    shooter.setIndexerPower(1);
-                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
+                    shooter.setIndexerPower(autoConstants.indexerPower);
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
@@ -204,13 +187,11 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             // ===== SECOND BALLS =====
             case GET_READY_TO_INTAKE_SECOND_BALLS:
                 follower.followPath(setUpIntakeSecondBallsPos, true);
                 setPathState(PathState.INTAKE_SECOND_BALLS);
                 break;
-
 
             case INTAKE_SECOND_BALLS:
                 intake.intakeIn();
@@ -220,7 +201,6 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             case DRIVE_TO_SHOOT_SECOND_BALLS:
                 if (!follower.isBusy()) {
                     intake.stopIntaking();
@@ -229,20 +209,18 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             case SHOOT_SECOND_BALLS:
-                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
-                    shooter.setTargetRPM(130);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootDelayTimer) {
+                    shooter.setTargetRPM(TeleConstant.bumperUpRPM);
                     intake.intakeIn();
-                    shooter.setIndexerPower(1);
-                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
+                    shooter.setIndexerPower(autoConstants.indexerPower);
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_THIRD_BALLS);
                     }
                 }
                 break;
-
 
             // ===== THIRD BALLS =====
             case GET_READY_TO_INTAKE_THIRD_BALLS:
@@ -267,11 +245,11 @@ public class RedAuto extends OpMode {
                 break;
 
             case SHOOT_THIRD_BALLS:
-                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > 0.3) {
-                    shooter.setTargetRPM(130);
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootDelayTimer) {
+                    shooter.setTargetRPM(TeleConstant.bumperUpRPM);
                     intake.intakeIn();
-                    shooter.setIndexerPower(1);
-                    if (pathTimer.getElapsedTimeSeconds() > timeToShoot) {
+                    shooter.setIndexerPower(autoConstants.indexerPower);
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
                         shooter.stopShooter();
                         intake.stopIntaking();
                         setPathState(PathState.ENDPOS);
@@ -279,19 +257,16 @@ public class RedAuto extends OpMode {
                 }
                 break;
 
-
             case ENDPOS:
                 //hood.setHoodPos(0);
                 follower.followPath(end, true);
                 setPathState(PathState.DONE);
                 break;
 
-
             case DONE:
                 break;
         }
     }
-
 
     @Override
     public void init() {
@@ -308,13 +283,11 @@ public class RedAuto extends OpMode {
         pathState = PathState.SPIN_UP_SHOOTER;
     }
 
-
     @Override
     public void loop() {
         shooter.update();
         follower.update();
         statePathUpdate();
-
 
         telemetry.addData("State", pathState);
         telemetry.addData("Follower Busy", follower.isBusy());
@@ -324,4 +297,3 @@ public class RedAuto extends OpMode {
         telemetry.update();
     }
 }
-
