@@ -54,6 +54,7 @@ public class BlueTele extends OpMode {
 
     @Override
     public void start() {
+        hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
     }
 
@@ -155,6 +156,8 @@ public class BlueTele extends OpMode {
         telemetry.addData("Pinpoint Yaw (deg)", autoAim.getYaw());
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
+        telemetryM.addData("Target RPM", RPMSpeed);
+        telemetryM.addData("Current RPM", shooter.getCurrentRPM());
         telemetry.update();
     }
 }

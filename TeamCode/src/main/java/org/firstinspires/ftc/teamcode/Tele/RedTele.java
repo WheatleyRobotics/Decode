@@ -27,7 +27,7 @@ public class RedTele extends OpMode {
     private Hood hood;
     private AutoAim autoAim;
 
-    private int gyroPos = 0; // RED: 0, BLUE: 180, PRACTICE: 90
+    private final int gyroPos = 0; // RED: 0, BLUE: 180, PRACTICE: 90
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
@@ -54,6 +54,7 @@ public class RedTele extends OpMode {
 
     @Override
     public void start() {
+        hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
     }
 
@@ -155,6 +156,8 @@ public class RedTele extends OpMode {
         telemetry.addData("Pinpoint Yaw (deg)", autoAim.getYaw());
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
+        telemetryM.addData("Target RPM", RPMSpeed);
+        telemetryM.addData("Current RPM", shooter.getCurrentRPM());
         telemetry.update();
     }
 }

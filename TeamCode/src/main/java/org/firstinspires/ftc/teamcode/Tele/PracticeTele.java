@@ -54,6 +54,7 @@ public class PracticeTele extends OpMode {
 
     @Override
     public void start() {
+        hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
     }
 
@@ -91,12 +92,11 @@ public class PracticeTele extends OpMode {
             turnInput = -gamepad1.right_stick_x * 0.8;
         }
 
-        // ✅ FIELD-CENTRIC FIX IS HERE
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
                 turnInput,
-                false,                         // <-- MUST be true for field-centric
+                false,
                 Math.toRadians(gyroPos)
         );
 
@@ -156,6 +156,8 @@ public class PracticeTele extends OpMode {
         telemetry.addData("Pinpoint Yaw (deg)", autoAim.getYaw());
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
+        telemetryM.addData("Target RPM", RPMSpeed);
+        telemetryM.addData("Current RPM", shooter.getCurrentRPM());
         telemetry.update();
     }
 }

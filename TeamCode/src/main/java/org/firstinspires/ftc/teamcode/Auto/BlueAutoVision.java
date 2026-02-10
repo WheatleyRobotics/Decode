@@ -10,12 +10,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 import org.firstinspires.ftc.teamcode.Tele.TeleConstant;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.PoseKalmanFilter;
 
-@Autonomous(name = "BlueAutoVision")
+@Autonomous(name = "Blue Auto Vision")
 public class BlueAutoVision extends OpMode {
     private final AutoConstants autoConstants = new AutoConstants();
 
@@ -23,6 +24,7 @@ public class BlueAutoVision extends OpMode {
     private Shooter shooter;
     private Intake intake;
     private LimeLight limelight;
+    private Hood hood;
 
     private PoseKalmanFilter poseKalman;
 
@@ -37,6 +39,7 @@ public class BlueAutoVision extends OpMode {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         limelight = new LimeLight(hardwareMap);
+        hood = new Hood(hardwareMap);
 
         follower.setPose(startingPose);
         poseKalman = new PoseKalmanFilter(startingPose);
@@ -153,6 +156,7 @@ public class BlueAutoVision extends OpMode {
     public void statePathUpdate() {
         switch (pathState) {
             case SPIN_UP_SHOOTER:
+                hood.setHoodPos(0.6);
                 shooter.setTargetRPM(TeleConstant.bumperUpRPM);
                 if (pathTimer.getElapsedTimeSeconds() > autoConstants.spinUpShooterWait) {
                     setPathState(PathState.SHOOT_PRELOAD);
