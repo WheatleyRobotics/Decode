@@ -56,6 +56,7 @@ public class BlueTele extends OpMode {
     public void start() {
         hood.setHoodPos(TeleConstant.startingHoodPos);
         follower.startTeleopDrive();
+        shooter.auto = false;
     }
 
     @Override
@@ -111,16 +112,25 @@ public class BlueTele extends OpMode {
             RPMSpeed = TeleConstant.bumperUpRPM;
             hood.setHoodPos(TeleConstant.bumperUpHoodPos);
             gyroShootPos = TeleConstant.bumperUpGyro;
+            shooter.setIdleRPM(TeleConstant.bumperUpIdleRPM);
         }
-        else if (gamepad1.dpad_right) {
+        else if(gamepad1.dpad_right){
+            RPMSpeed = TeleConstant.closeShotRPM;
+            hood.setHoodPos(TeleConstant.closeShotHoodPos);
+            gyroShootPos = TeleConstant.closeShotGyro;
+            shooter.setIdleRPM(TeleConstant.closeShotIdleRPM);
+        }
+        else if (gamepad1.dpad_down) {
             RPMSpeed = TeleConstant.midShotRPM;
             hood.setHoodPos(TeleConstant.midShotHoodPos);
             gyroShootPos = TeleConstant.midShotGyro;
+            shooter.setIdleRPM(TeleConstant.midIdleRPM);
         }
-        else if (gamepad1.dpad_down) {
+        else if (gamepad1.dpad_left) {
             RPMSpeed = TeleConstant.farShotRPM;
             hood.setHoodPos(TeleConstant.farShotHoodPos);
             gyroShootPos = TeleConstant.farShotGyro;
+            shooter.setIdleRPM(TeleConstant.farIdleRPM);
         }
 
         boolean shooterFeeding = shooter.getTargetRPM() > 0 && shooter.isAtTargetRPM();

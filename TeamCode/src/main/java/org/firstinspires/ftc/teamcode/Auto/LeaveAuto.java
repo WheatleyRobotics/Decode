@@ -108,6 +108,7 @@ public class LeaveAuto extends OpMode {
     public void start() {
         opModeTimer.resetTimer();
         setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
+        shooter.auto = true;
     }
 
     @Override

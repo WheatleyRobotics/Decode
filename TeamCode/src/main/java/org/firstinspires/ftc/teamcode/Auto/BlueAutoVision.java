@@ -166,7 +166,7 @@ public class BlueAutoVision extends OpMode {
             case SHOOT_PRELOAD:
                 shooter.setIndexerPower(autoConstants.indexerPower);
                 intake.intakeIn();
-                if (pathTimer.getElapsedTimeSeconds() > autoConstants.shootFirstBalls) {
+                if (pathTimer.getElapsedTimeSeconds() > autoConstants.shootPreLoadBalls) {
                     shooter.stopShooter();
                     intake.stopIntaking();
                     setPathState(PathState.GET_READY_TO_INTAKE_FIRST_BALLS);

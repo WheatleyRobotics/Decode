@@ -306,6 +306,8 @@ public class RedAuto extends OpMode {
         follower.setPose(startingPose);
 
         pathState = PathState.SPIN_UP_SHOOTER;
+
+        shooter.auto = true;
     }
 
 
@@ -314,7 +316,6 @@ public class RedAuto extends OpMode {
         shooter.update();
         follower.update();
         statePathUpdate();
-
 
         telemetry.addData("State", pathState);
         telemetry.addData("Follower Busy", follower.isBusy());

@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Tele.TeleConstant;
+
 public class Shooter {
     private final DcMotorEx shooterMotor;
     private final CRServo indexerLeft, indexerRight;
@@ -21,6 +23,8 @@ public class Shooter {
     private static final double RPM_TOLERANCE = 5;
     private double targetWheelRPM = 0;
     private double currentWheelRPM = 0;
+
+    public boolean auto = false;
 
     // Auto-feed speed
     private static final double indexersSpeed = 1.0;
@@ -46,6 +50,10 @@ public class Shooter {
         targetWheelRPM = wheelRPM;
     }
 
+    public void setIdleRPM(double idleRPM){
+        TeleConstant.ildeRPM = idleRPM;
+    }
+
     // ---------- UPDATE ----------
     public void update() {
         double ticksPerRev = shooterMotor.getMotorType().getTicksPerRev();
@@ -59,16 +67,26 @@ public class Shooter {
             double targetTicksPerSecond = (motorRPM / 60.0) * ticksPerRev;
             shooterMotor.setVelocity(targetTicksPerSecond);
         } else {
-            shooterMotor.setPower(0.3); // idle spin
+            shooterMotor.setPower(TeleConstant.ildeRPM);
         }
 
         double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;
         currentWheelRPM = motorRPM / GEAR_RATIO;
 
         // ---------- AUTO FEED ----------
-        if (targetWheelRPM > 0 && isAtTargetRPM()) {
-            indexerLeft.setPower(indexersSpeed);
-            indexerRight.setPower(indexersSpeed); // same power, hardware handles reversal
+        if(auto) {
+            /*
+            if (targetWheelRPM > 0 && isAtTargetRPM()) {
+                indexerLeft.setPower(indexersSpeed);
+                indexerRight.setPower(indexersSpeed); // same power, hardware handles reversal
+            }
+             */
+        }
+        else{
+            if (targetWheelRPM > 0 && isAtTargetRPM()) {
+                indexerLeft.setPower(indexersSpeed);
+                indexerRight.setPower(indexersSpeed); // same power, hardware handles reversal
+            }
         }
     }
 
@@ -78,6 +96,10 @@ public class Shooter {
         //shooterMotor.setPower(0.3);
         indexerLeft.setPower(-1);
         indexerRight.setPower(-1);
+    }
+
+    public void autoShooter(){
+        targetWheelRPM = 0;
     }
 
     // ---------- INDEXER ----------

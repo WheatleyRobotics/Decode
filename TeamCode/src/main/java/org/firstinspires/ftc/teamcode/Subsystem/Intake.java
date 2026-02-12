@@ -31,6 +31,10 @@ public class Intake {
         tunnelMotor.setPower(TUNNEL_SPEED);
     }
 
+    public void onlyIntake(){
+        intakeMotor.setPower(1);
+    }
+
     public void intakeIn() {
         intakeMotor.setPower(INTAKE_SPEED);
         tunnelMotor.setPower(TUNNEL_SPEED);
