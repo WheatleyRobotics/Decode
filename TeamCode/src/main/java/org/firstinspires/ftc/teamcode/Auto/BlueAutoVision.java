@@ -195,7 +195,7 @@ public class BlueAutoVision extends OpMode {
                 break;
 
             case SHOOT_FIRST_BALLS:
-                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootDelayTimer) {
+                if (!follower.isBusy() && shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootingTimer) {
                     shooter.setTargetRPM(TeleConstant.bumperUpRPM);
                     shooter.setIndexerPower(autoConstants.indexerPower);
                     intake.intakeIn();
