@@ -184,6 +184,32 @@ public class BlueAuto extends OpMode {
                 shooter.setTargetRPM(TeleConstant.bumperUpRPM);
 
                 if (!follower.isBusy()) {
+                    double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
+
+                    if (shootElapsed < autoConstants.indexerShootingDelay) {
+                        shooter.setIndexerPower(-1); // wait before feeding
+                        intake.stopIntaking();
+                    } else if (shootElapsed < autoConstants.shootingTimer) {
+                        shooter.setIndexerPower(autoConstants.indexerPower); // feed balls
+                        intake.intakeIn();
+                    } else {
+                        shooter.setIndexerPower(-1); // stop after shooting window
+                        intake.stopIntaking();
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
+                        shooter.autoShooter();
+                        intake.stopIntaking();
+                        setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
+                    }
+                }
+                break;
+
+            /*
+            case SHOOT_FIRST_BALLS:
+                shooter.setTargetRPM(TeleConstant.bumperUpRPM);
+
+                if (!follower.isBusy()) {
                     if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.indexerShootingDelay) {
                         if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootingTimer) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
@@ -200,9 +226,11 @@ public class BlueAuto extends OpMode {
                 }
             break;
 
+             */
+
             // ===== SECOND BALLS =====
             case GET_READY_TO_INTAKE_SECOND_BALLS:
-                shooter.setIndexerPower(-autoConstants.indexerPower);
+                //shooter.setIndexerPower(-autoConstants.indexerPower);
                 if (!follower.isBusy()) {
                     follower.followPath(setUpIntakeSecondBallsPos, true);
                     setPathState(PathState.INTAKE_SECOND_BALLS);
