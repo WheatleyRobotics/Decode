@@ -158,7 +158,7 @@ public class BlueAutoVision extends OpMode {
             case SPIN_UP_SHOOTER:
                 hood.setHoodPos(0.6);
                 shooter.setTargetRPM(TeleConstant.bumperUpRPM);
-                if (pathTimer.getElapsedTimeSeconds() > autoConstants.spinUpShooterWait) {
+                if (pathTimer.getElapsedTimeSeconds() > autoConstants.preLoadOnlySpinUpShooterWait) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;

@@ -33,7 +33,7 @@ public class BlueTele extends OpMode {
     private boolean lastRightTrigger = false;
     private boolean autoAimActive = false;
 
-    private int RPMSpeed;
+    private double RPMSpeed;
     private double turnInput = 0;
 
     @Override
@@ -49,7 +49,13 @@ public class BlueTele extends OpMode {
         hood = new Hood(hardwareMap);
         autoAim = new AutoAim(hardwareMap);
 
+        double pos = TeleConstant.startingHoodPos + TeleConstant.midShotOffset;
+        pos = Math.max(0.0, Math.min(1.0, pos));
+        //hood.setHoodPos(pos);
+
+        /*
         hood.setRange(0, 0.9);
+         */
     }
 
     @Override
@@ -110,25 +116,29 @@ public class BlueTele extends OpMode {
 
         if (gamepad1.dpad_up) {
             RPMSpeed = TeleConstant.bumperUpRPM;
-            hood.setHoodPos(TeleConstant.bumperUpHoodPos);
+            //hood.setHoodPos(TeleConstant.bumperUpHoodPos);
+            hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.bumperUpOffset);
             gyroShootPos = TeleConstant.bumperUpGyro;
             shooter.setIdleRPM(TeleConstant.bumperUpIdleRPM);
         }
         else if(gamepad1.dpad_right){
             RPMSpeed = TeleConstant.closeShotRPM;
-            hood.setHoodPos(TeleConstant.closeShotHoodPos);
+            //hood.setHoodPos(TeleConstant.closeShotHoodPos);
+            hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.closeShotOffset);
             gyroShootPos = TeleConstant.closeShotGyro;
             shooter.setIdleRPM(TeleConstant.closeShotIdleRPM);
         }
         else if (gamepad1.dpad_down) {
             RPMSpeed = TeleConstant.midShotRPM;
-            hood.setHoodPos(TeleConstant.midShotHoodPos);
+            //hood.setHoodPos(TeleConstant.midShotHoodPos);
+            hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.midShotOffset);
             gyroShootPos = TeleConstant.midShotGyro;
             shooter.setIdleRPM(TeleConstant.midIdleRPM);
         }
         else if (gamepad1.dpad_left) {
             RPMSpeed = TeleConstant.farShotRPM;
-            hood.setHoodPos(TeleConstant.farShotHoodPos);
+            //hood.setHoodPos(TeleConstant.farShotHoodPos);
+            hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.farShotOffset);
             gyroShootPos = TeleConstant.farShotGyro;
             shooter.setIdleRPM(TeleConstant.farIdleRPM);
         }
