@@ -20,7 +20,7 @@ public class Shooter {
     // Motor RPM = Wheel RPM * GEAR_RATIO
     private static final double GEAR_RATIO = 1;
 
-    private static final double RPM_TOLERANCE = 5;
+    private static final double RPM_TOLERANCE = 4;
     private double targetWheelRPM = 0;
     private double currentWheelRPM = 0;
 

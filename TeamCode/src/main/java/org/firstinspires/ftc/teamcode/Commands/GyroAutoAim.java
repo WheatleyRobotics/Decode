@@ -4,7 +4,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class AutoAim {
+public class GyroAutoAim {
 
     private GoBildaPinpointDriver pinpoint;
 
@@ -13,7 +13,7 @@ public class AutoAim {
     private static final double MAX_TURN_POWER = 0.45;
     private static final double ANGLE_TOLERANCE_DEG = 0.5; //1.0
 
-    public AutoAim(HardwareMap hardwareMap) {
+    public GyroAutoAim(HardwareMap hardwareMap) {
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "OdometryComputer");
     }
 

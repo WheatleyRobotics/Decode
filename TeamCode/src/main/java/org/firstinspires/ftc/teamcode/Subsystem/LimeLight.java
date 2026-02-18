@@ -23,7 +23,7 @@ public class LimeLight {
 
     public LimeLight(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(8);
+        limelight.pipelineSwitch(0);
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose);
         limelight.start();
@@ -64,7 +64,7 @@ public class LimeLight {
     }
 
     public Pose3D getBotPose(){
-        Pose3D botPose = llResult.getBotpose_MT2();
+        Pose3D botPose = llResult.getBotpose();
         return botPose;
     }
 

@@ -11,11 +11,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 //import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.Tele.TeleConstant;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Autonomous(name = "Red Auto")
-public class RedAuto extends OpMode {
+@Autonomous(name = "Close Red Auto")
+public class CloseRedAuto extends OpMode {
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
@@ -54,7 +55,7 @@ public class RedAuto extends OpMode {
 
 
     // ===== POSES (UNCHANGED) =====
-    private final Pose startingPose = new Pose(125.30878186968842, 120.83336674656788, Math.toRadians(35));
+    private final Pose startingPose = new Pose(48.54390934844193, 95.04815864022663, Math.toRadians(37));
     private final Pose bumperUpPose = new Pose(123.56, 119.22153846153844, Math.toRadians(35));
     private final Pose firstIntakePose = new Pose(96.81019830028329, 80.7384, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeFirstBallsPose = new Pose(132, 84.7323, Math.toRadians(intakeBallsGyroPos));
@@ -323,6 +324,11 @@ public class RedAuto extends OpMode {
         telemetry.addData("Target RPM", shooter.getTargetRPM());
         //telemetry.addData("Hood Pos", hood.getServoPos());
         telemetry.update();
+    }
+
+    @Override
+    public void stop(){
+        TeleConstant.startingPoseAfterAuto = follower.getPose();
     }
 }
 
