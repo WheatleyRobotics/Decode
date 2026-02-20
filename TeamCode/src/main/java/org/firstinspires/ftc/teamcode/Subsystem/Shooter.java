@@ -67,7 +67,7 @@ public class Shooter {
             double targetTicksPerSecond = (motorRPM / 60.0) * ticksPerRev;
             shooterMotor.setVelocity(targetTicksPerSecond);
         } else {
-            shooterMotor.setPower(TeleConstant.ildeRPM);
+            //shooterMotor.setPower(TeleConstant.ildeRPM);
         }
 
         double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;
