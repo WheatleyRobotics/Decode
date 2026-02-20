@@ -97,9 +97,11 @@ public class RedTele extends OpMode {
     }
 
     private Pose getRobotPoseFromCamera() {
+        llResult = camera.getLatestResult();
+
         if (llResult != null && llResult.isValid()) {
             Pose3D botpose = camera.getLatestResult().getBotpose();
-
+            /*
             double xMeters = botpose.getPosition().x;
             double yMeters = botpose.getPosition().y;
             double yawDegrees = botpose.getOrientation().getYaw(AngleUnit.DEGREES);
@@ -107,6 +109,13 @@ public class RedTele extends OpMode {
             double xInches = (xMeters + 39.3701) + 72;
             double yInches = (yMeters + 39.3701) + 72;
             double headingRadians = Math.toRadians(yawDegrees);
+
+             */
+
+            double xInches = botpose.getPosition().x * 39.3701 + 72; // 72 = center of field
+            double yInches = botpose.getPosition().y * 39.3701 + 72;
+            double headingRadians = Math.toRadians(-botpose.getOrientation().getYaw(AngleUnit.DEGREES));
+
 
             return new Pose(
                     xInches,
