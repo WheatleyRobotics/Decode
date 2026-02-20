@@ -28,7 +28,7 @@ public class Intake {
 
     public void intakeWithShoot(){
         intakeMotor.setPower(INTAKE_SHOOT_SPEED);
-        tunnelMotor.setPower(TUNNEL_SPEED);
+        tunnelMotor.setPower(0.5);
     }
 
     public void onlyIntake(){

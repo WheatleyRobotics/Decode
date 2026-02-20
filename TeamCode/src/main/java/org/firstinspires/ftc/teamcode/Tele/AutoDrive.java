@@ -149,8 +149,8 @@ public class AutoDrive extends OpMode {
 
             //This is the normal version to use in the TeleOp
             if (!slowMode) follower.setTeleOpDrive(
-                    gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
                     -gamepad1.right_stick_x,
                     false, // Robot Centric
                     Math.toRadians(gyroPos)
@@ -158,8 +158,8 @@ public class AutoDrive extends OpMode {
 
                 //This is how it looks with slowMode on
             else follower.setTeleOpDrive(
-                    gamepad1.left_stick_y * slowModeMultiplier,
-                    gamepad1.left_stick_x * slowModeMultiplier,
+                    -gamepad1.left_stick_y * slowModeMultiplier,
+                    -gamepad1.left_stick_x * slowModeMultiplier,
                     -gamepad1.right_stick_x * slowModeMultiplier,
                     false, // Robot Centric
                     Math.toRadians(gyroPos)

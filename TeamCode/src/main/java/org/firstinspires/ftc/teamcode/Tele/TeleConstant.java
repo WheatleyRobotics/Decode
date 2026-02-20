@@ -12,7 +12,7 @@ public class TeleConstant {
     public static final double bumperUpOffset = 0.2; //0.19
     public static final double bumperUpIdleRPM = 0.3;
 
-    public static final double closeShotRPM = 64; //70
+    public static final double closeShotRPM = 67; //70
     public static final double closeShotGyro = 130; // left is - right is +
     //public static final double closeShotHoodPos = 0.7;
     public static final double closeShotOffset = 0.31;

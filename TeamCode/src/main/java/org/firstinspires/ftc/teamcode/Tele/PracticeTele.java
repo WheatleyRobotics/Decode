@@ -1,18 +1,25 @@
 package org.firstinspires.ftc.teamcode.Tele;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Commands.GyroAutoAim;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
@@ -30,12 +37,16 @@ public class PracticeTele extends OpMode {
 
     public static Pose startingPose = new Pose(118.37393767705385, 130.21580300719114, Math.toRadians(37));
     private boolean automatedDrive;
+    private Limelight3A camera;
+    private LLResult llResult;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.5;
 
-    private int gyroPos = 90; // RED: 0, BLUE: 180, PRACTICE: 90
+    public Pose lastCurrentLimeLightPos = new Pose();
+
+    private int gyroPos = 90; // RED: 180, BLUE: 90, PRACTICE: 0
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
@@ -52,13 +63,15 @@ public class PracticeTele extends OpMode {
     public void init() {
         follower = Constants.createFollower(hardwareMap);
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
+        camera = hardwareMap.get(Limelight3A.class, "limelight");
+        follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null ? startingPose : TeleConstant.startingPoseAfterAuto);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(80, 101))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(34), 1))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(82.60623229461757, 81.17847025495752))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(37), 0.8))
                 .build();
 
         shooter = new Shooter(hardwareMap);
@@ -75,6 +88,38 @@ public class PracticeTele extends OpMode {
         follower.startTeleopDrive();
         hood.setHoodPos(TeleConstant.startingHoodPos);
         shooter.auto = false;
+        camera.start();
+    }
+
+    private Pose getRobotPoseFromCamera() {
+        //Fill this out to get the robot Pose from the camera's output (apply any filters if you need to using follower.getPose() for fusion)
+        //Pedro Pathing has built-in KalmanFilter and LowPassFilter classes you can use for this
+
+        //Use this to convert standard FTC coordinates to standard Pedro Pathing coordinates
+        if (llResult != null && llResult.isValid()) {
+            //Pose3D botpose = camera.getLatestResult().getBotpose_MT2();
+            Pose3D botpose = camera.getLatestResult().getBotpose();
+
+            double xMeters = botpose.getPosition().x;
+            double yMeters = botpose.getPosition().y;
+            double yawDegrees = botpose.getOrientation().getYaw(AngleUnit.DEGREES);
+
+            double xInches = (xMeters + 39.3701); // (xMeters + 39.3701) + 72
+            double yInches = (yMeters + 39.3701); // (yMeters + 39.3701) + 72
+            double headingRadians = Math.toRadians(yawDegrees);
+
+            return new Pose(
+                    xInches,
+                    yInches,
+                    headingRadians,
+                    FTCCoordinates.INSTANCE)
+                    .getAsCoordinateSystem(PedroCoordinates.INSTANCE);
+
+        } else {
+            return null;
+        }
+
+        //return new Pose(0, 0, 0, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
     }
 
     @Override
@@ -82,10 +127,43 @@ public class PracticeTele extends OpMode {
         //Call this once per loop
         follower.update();
         telemetryM.update();
+        llResult = camera.getLatestResult();
 
+        /*
+        if(llResult != null && llResult.isValid()) {
+            follower.setPose(getRobotPoseFromCamera());
+        }
+         */
+        if(getRobotPoseFromCamera() != null){
+            follower.setPose(getRobotPoseFromCamera());
+            lastCurrentLimeLightPos = getRobotPoseFromCamera();
+        }
+
+        /*
         if (gamepad1.b) {
             autoAim.resetGyro(gyroPos);
         }
+         */
+        if (gamepad1.b) {
+            autoAim.resetGyro(gyroPos);
+        }
+
+        /*
+        if (gamepad1.b) {
+            autoAim.resetGyro(gyroPos);
+
+            follower.setPose(new Pose(
+                    follower.getPose().getX(),
+                    follower.getPose().getY(),
+                    autoAim.getYaw()
+                    /*
+                    lastCurrentLimeLightPos.getX(),
+                    lastCurrentLimeLightPos.getY(),
+                    Math.toRadians(gyroPos)
+            ));
+        }
+         */
+
 
         if (!automatedDrive) {
             //Make the last parameter false for field-centric
@@ -202,7 +280,6 @@ public class PracticeTele extends OpMode {
             hood.manualDown();
         }
 
-
         telemetry.addData("Shooter Ready", shooter.isAtTargetRPM());
         telemetry.addData("Target RPM", shooter.getTargetRPM());
         telemetry.addData("Current RPM", shooter.getCurrentRPM());
@@ -212,16 +289,28 @@ public class PracticeTele extends OpMode {
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
         //telemetry.addData("Limelight Valid Target", limeLight.hasValidTarget());
-        telemetry.addData("Current pose", follower.getPose());
+        telemetry.addData("Odometry Pose", follower.getPose());
         //Panels Telemetry
         telemetryM.addData("Target RPM", RPMSpeed);
         telemetryM.addData("Current pose", follower.getPose());
         telemetryM.addData("Current RPM", shooter.getCurrentRPM());
+        if(getRobotPoseFromCamera() != null){
+            telemetry.addData("Limelight Pose:", getRobotPoseFromCamera());
+        }
+        else {
+            telemetry.addData("LimelightPose", "Null");
+        }
+
         telemetry.update();
 
         //telemetryM.debug("position", follower.getPose());
-        telemetryM.addData("position", follower.getPose());
-        //telemetryM.addData("Limelight Pose", );
+        telemetryM.addData("Odometry Pose", follower.getPose());
+        if(getRobotPoseFromCamera() != null){
+            telemetryM.addData("Limelight Pose:", getRobotPoseFromCamera());
+        }
+        else {
+            telemetryM.addData("LimelightPose", lastCurrentLimeLightPos);
+        }
         telemetryM.debug("velocity", follower.getVelocity());
         telemetryM.debug("automatedDrive", automatedDrive);
     }

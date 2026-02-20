@@ -137,9 +137,12 @@ public class BumperUpBlueAuto extends OpMode {
     public void setPathState(PathState newState) {
         pathState = newState;
         pathTimer.resetTimer();
+        if(newState.toString().startsWith("DRIVE_")){
+            indexerTimer = new Timer();
+        }
+
         if (newState.toString().startsWith("SHOOT_")) {
             shootDelayTimer = new Timer();
-            indexerTimer = new Timer();
         }
     }
 
@@ -207,10 +210,10 @@ public class BumperUpBlueAuto extends OpMode {
                 if (!follower.isBusy()) {
                     double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
 
-                    if (shootElapsed < autoConstants.indexerShootingDelay) {
+                    if (shootElapsed < autoConstants.bumperUpIndexerShootingDelay) {
                         shooter.setIndexerPower(-1); // wait before feeding
                         intake.onlyIntake();
-                    } else if (shootElapsed < autoConstants.shootingTimer) {
+                    } else if (shootElapsed < autoConstants.bumperUpShootingTimer) {
                         if(shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower); // feed balls
                             intake.intakeIn();
@@ -220,7 +223,7 @@ public class BumperUpBlueAuto extends OpMode {
                         intake.stopIntaking();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.bumperUpTimeToShoot) {
                         shooter.autoShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
@@ -256,7 +259,7 @@ public class BumperUpBlueAuto extends OpMode {
 
             case DRIVE_TO_SHOOT_SECOND_BALLS:
                 double indexerDelay = indexerTimer.getElapsedTimeSeconds();
-                if (indexerDelay < autoConstants.indexerIntake) {
+                if (indexerDelay < autoConstants.bumperUpIndexerIntake) {
                     intake.intakeIn();
                 }
                 else {
@@ -277,10 +280,10 @@ public class BumperUpBlueAuto extends OpMode {
                 if (!follower.isBusy()) {
                     double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
 
-                    if (shootElapsed < autoConstants.indexerShootingDelay) {
+                    if (shootElapsed < autoConstants.bumperUpIndexerShootingDelay) {
                         shooter.setIndexerPower(-1); // wait before feeding
                         intake.onlyIntake();
-                    } else if (shootElapsed < autoConstants.shootingTimer) {
+                    } else if (shootElapsed < autoConstants.bumperUpShootingTimer) {
                         if(shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower); // feed balls
                             intake.intakeIn();
@@ -290,7 +293,7 @@ public class BumperUpBlueAuto extends OpMode {
                         intake.stopIntaking();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.bumperUpTimeToShoot) {
                         shooter.autoShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
@@ -325,14 +328,14 @@ public class BumperUpBlueAuto extends OpMode {
                 shooter.setTargetRPM(TeleConstant.bumperUpRPM);
 
                 if (!follower.isBusy()) {
-                    if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.indexerShootingDelay) {
-                        if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.shootingTimer) {
+                    if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.bumperUpIndexerShootingDelay) {
+                        if (shootDelayTimer.getElapsedTimeSeconds() > autoConstants.bumperUpShootingTimer) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
                             intake.intakeIn();
                         }
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.timeToShoot) {
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.bumperUpTimeToShoot) {
                         shooter.setIndexerPower(-autoConstants.indexerPower);
                         shooter.autoShooter();
                         intake.stopIntaking();
