@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.Tele;
 import com.pedropathing.geometry.Pose;
 
 public class TeleConstant {
+    //auto
+    public static final double FirstBallRedCloseShotRPM = 63.7; //64.5
+    public static final double SecondBallRedCloseShotRPM = 67;
+
     public static final double startingHoodPos = 0.29; //0.39 // 0.31 is the new pos
     public static double ildeRPM = 0.3;
 

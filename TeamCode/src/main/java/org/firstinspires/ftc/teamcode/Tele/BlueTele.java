@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 public class BlueTele extends OpMode {
     private Follower follower;
 
-    public static Pose startingPose = new Pose(118.37393767705385, 130.21580300719114, Math.toRadians(37));
+    public static Pose startingPose = new Pose(25.855524079320112, 130.38810198300283, Math.toRadians(143));
     private boolean automatedDrive;
     private Limelight3A camera;
     private LLResult llResult;
@@ -77,8 +77,8 @@ public class BlueTele extends OpMode {
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(82.60623229461757, 81.17847025495752))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(37), 0.8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(54, 92))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(132), 1))
                 .build();
 
         shooter = new Shooter(hardwareMap);

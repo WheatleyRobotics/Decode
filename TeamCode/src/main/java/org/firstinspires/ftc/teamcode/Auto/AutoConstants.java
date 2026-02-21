@@ -11,8 +11,10 @@ public class AutoConstants {
 
     //Close Shots
     public final double closeFirstBallsIntakeExtraTime = 3;
+    public final double closeFirstBallsShootingDelay = 2.9;
     public final double closeFirstBallsShootingTime = 5.5;
-    public final double closeSecondBallsIntakeExtraTime = 1;
+    public final double closeSecondBallsIntakeExtraTime = 0.5;
+    public final double closeSecondBallsShootingDelay = 3;
     public final double closeSecondBallsShootingTime = 5.5;
     public final double closeThirdBallsIntakeExtraTime = 1;
     public final double closeThirdBallsShootingTime = 5.5;

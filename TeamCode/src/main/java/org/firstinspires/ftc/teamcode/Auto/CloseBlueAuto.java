@@ -56,7 +56,8 @@ public class CloseBlueAuto extends OpMode {
 
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(25.855524079320112, 130.38810198300283, Math.toRadians(143)); // x: 25.976203966005663, y: 130.24333994334273 gyro 143
-    private final Pose closeShotPose = new Pose(54, 92, Math.toRadians(132)); //x: 48, y: 93, yaw 131
+    private final Pose firstBallsCloseShotPose = new Pose(54, 92, Math.toRadians(132)); //x: 48, y: 93, yaw 131
+    private final Pose secondBallsClosePose = new Pose(58, 92, Math.toRadians(132));
     private final Pose firstIntakePose = new Pose(59, 91, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
     private final Pose intakeFirstBallsPose = new Pose(26, 88, Math.toRadians(intakeBallsGyroPos)); //28
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
@@ -91,13 +92,13 @@ public class CloseBlueAuto extends OpMode {
          */
 
         shootFirstBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeFirstBallsPose, closeShotPose))
-                .setLinearHeadingInterpolation(intakeFirstBallsPose.getHeading(), closeShotPose.getHeading())
+                .addPath(new BezierLine(intakeFirstBallsPose, firstBallsCloseShotPose))
+                .setLinearHeadingInterpolation(intakeFirstBallsPose.getHeading(), firstBallsCloseShotPose.getHeading())
                 .build();
 
         setUpIntakeSecondBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(closeShotPose, secondIntakePose))
-                .setLinearHeadingInterpolation(closeShotPose.getHeading(), secondIntakePose.getHeading())
+                .addPath(new BezierLine(firstBallsCloseShotPose, secondIntakePose))
+                .setLinearHeadingInterpolation(firstBallsCloseShotPose.getHeading(), secondIntakePose.getHeading())
                 .build();
 
         intakeSecondBallsPos = follower.pathBuilder()
@@ -111,13 +112,13 @@ public class CloseBlueAuto extends OpMode {
                 .build();
 
         shootSecondBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(avoidWallPose, closeShotPose))
-                .setLinearHeadingInterpolation(avoidWallPose.getHeading(), closeShotPose.getHeading())
+                .addPath(new BezierLine(avoidWallPose, secondBallsClosePose))
+                .setLinearHeadingInterpolation(avoidWallPose.getHeading(), secondBallsClosePose.getHeading())
                 .build();
 
         setUpIntakeThirdBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(closeShotPose, thirdIntakePose))
-                .setLinearHeadingInterpolation(closeShotPose.getHeading(), thirdIntakePose.getHeading())
+                .addPath(new BezierLine(secondBallsClosePose, thirdIntakePose))
+                .setLinearHeadingInterpolation(secondBallsClosePose.getHeading(), thirdIntakePose.getHeading())
                 .build();
 
         intakeThirdBallsPos = follower.pathBuilder()
@@ -126,13 +127,13 @@ public class CloseBlueAuto extends OpMode {
                 .build();
 
         shootThirdBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeThirdBallsPose, closeShotPose))
-                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), closeShotPose.getHeading())
+                .addPath(new BezierLine(intakeThirdBallsPose, firstBallsCloseShotPose))
+                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), firstBallsCloseShotPose.getHeading())
                 .build();
 
         end = follower.pathBuilder()
-                .addPath(new BezierLine(closeShotPose, endingPoint))
-                .setLinearHeadingInterpolation(closeShotPose.getHeading(), endingPoint.getHeading())
+                .addPath(new BezierLine(firstBallsCloseShotPose, endingPoint))
+                .setLinearHeadingInterpolation(firstBallsCloseShotPose.getHeading(), endingPoint.getHeading())
                 .build();
     }
 
@@ -307,11 +308,11 @@ public class CloseBlueAuto extends OpMode {
                         intake.stopIntaking();
                     }
 
-                if (pathTimer.getElapsedTimeSeconds() > autoConstants.closeSecondBallsShootingTime) {
-                    shooter.autoShooter();
-                    intake.stopIntaking();
-                    setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
-                }
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.closeSecondBallsShootingTime) {
+                        shooter.autoShooter();
+                        intake.stopIntaking();
+                        setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);
+                    }
                 }
                 break;
 
