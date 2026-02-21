@@ -19,21 +19,17 @@ import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.PoseHistory;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Commands.GyroAutoAim;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
-import org.firstinspires.ftc.teamcode.Subsystem.LimeLight;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Commands.LimelightFieldDriveAssist;
+//import org.firstinspires.ftc.teamcode.Commands.LimelightFieldDriveAssist;
 import org.firstinspires.ftc.teamcode.util.Drawing;
+import org.firstinspires.ftc.teamcode.util.LimeLight;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.function.Supplier;
 
@@ -42,16 +38,18 @@ import java.util.function.Supplier;
 public class PracticeTele extends OpMode {
     private Follower follower;
 
-    public static Pose startingPose = new Pose(118.37393767705385, 130.21580300719114, Math.toRadians(37));
+    public static Pose startingPose = new Pose(25.855524079320112, 130.38810198300283, Math.toRadians(143));
     private boolean automatedDrive;
-    private Limelight3A camera;
-    private LLResult llResult;
+
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
     private Drawing drawing;
+
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.5;
 
+    // Limelight
+    private LimeLight limelight;
     public Pose lastCurrentLimeLightPos = new Pose();
 
     private int gyroPos = 90; // RED: 0, BLUE: 180, PRACTICE: 90
@@ -70,15 +68,23 @@ public class PracticeTele extends OpMode {
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
-        camera = hardwareMap.get(Limelight3A.class, "limelight");
-        follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null ? startingPose : TeleConstant.startingPoseAfterAuto);
+
+        // Limelight init
+        limelight = new LimeLight(hardwareMap);
+
+        follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null
+                ? startingPose
+                : TeleConstant.startingPoseAfterAuto);
+
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(82.60623229461757, 81.17847025495752))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(37), 0.8))
+        pathChain = () -> follower.pathBuilder() // Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(54, 92))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(
+                        follower::getHeading,
+                        Math.toRadians(132),
+                        1))
                 .build();
 
         shooter = new Shooter(hardwareMap);
@@ -95,48 +101,22 @@ public class PracticeTele extends OpMode {
         follower.startTeleopDrive();
         hood.setHoodPos(TeleConstant.startingHoodPos);
         shooter.auto = false;
-        camera.start();
-    }
 
-    private Pose getRobotPoseFromCamera() {
-        llResult = camera.getLatestResult();
-
-        if (llResult != null && llResult.isValid()) {
-            Pose3D botpose = camera.getLatestResult().getBotpose();
-            /*
-            double xMeters = botpose.getPosition().x;
-            double yMeters = botpose.getPosition().y;
-            double yawDegrees = botpose.getOrientation().getYaw(AngleUnit.DEGREES);
-
-            double xInches = (xMeters + 39.3701) + 72;
-            double yInches = (yMeters + 39.3701) + 72;
-            double headingRadians = Math.toRadians(yawDegrees);
-
-             */
-
-            double xInches = botpose.getPosition().x * 39.3701 + 72; // 72 = center of field
-            double yInches = botpose.getPosition().y * 39.3701 + 72;
-            double headingRadians = Math.toRadians(-botpose.getOrientation().getYaw(AngleUnit.DEGREES));
-
-
-            return new Pose(
-                    xInches,
-                    yInches,
-                    headingRadians);
-        } else {
-            return null;
-        }
+        // Start Limelight
+        limelight.start();
     }
 
     @Override
     public void loop() {
+
         // Update follower and telemetry
         follower.update();
         telemetryM.update();
-        llResult = camera.getLatestResult();
 
-        if(getRobotPoseFromCamera() != null){
-            lastCurrentLimeLightPos = getRobotPoseFromCamera();
+        // Update Limelight pose
+        Pose camPose = limelight.getPose();
+        if (camPose != null) {
+            lastCurrentLimeLightPos = camPose;
         }
 
         // Reset gyro if needed
@@ -175,9 +155,12 @@ public class PracticeTele extends OpMode {
             automatedDrive = true;
         }
 
-        if (automatedDrive && (Math.abs(gamepad1.left_stick_y) > 0.1 ||
-                Math.abs(gamepad1.left_stick_x) > 0.1 ||
-                Math.abs(gamepad1.right_stick_x) > 0.1 || !follower.isBusy())) {
+        if (automatedDrive && (
+                Math.abs(gamepad1.left_stick_y) > 0.1 ||
+                        Math.abs(gamepad1.left_stick_x) > 0.1 ||
+                        Math.abs(gamepad1.right_stick_x) > 0.1 ||
+                        !follower.isBusy())) {
+
             follower.startTeleopDrive();
             automatedDrive = false;
         }
@@ -194,16 +177,19 @@ public class PracticeTele extends OpMode {
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.bumperUpOffset);
             gyroShootPos = TeleConstant.bumperUpGyro;
             shooter.setIdleRPM(TeleConstant.bumperUpIdleRPM);
-        } else if(gamepad1.dpad_right){
+
+        } else if (gamepad1.dpad_right) {
             RPMSpeed = TeleConstant.closeShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.closeShotOffset);
             gyroShootPos = TeleConstant.closeShotGyro;
             shooter.setIdleRPM(TeleConstant.closeShotIdleRPM);
+
         } else if (gamepad1.dpad_down) {
             RPMSpeed = TeleConstant.midShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.midShotOffset);
             gyroShootPos = TeleConstant.midShotGyro;
             shooter.setIdleRPM(TeleConstant.midIdleRPM);
+
         } else if (gamepad1.dpad_left) {
             RPMSpeed = TeleConstant.farShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.farShotOffset);
@@ -249,15 +235,17 @@ public class PracticeTele extends OpMode {
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
         telemetry.addData("Odometry Pose", follower.getPose());
+
         telemetryM.addData("Target RPM", RPMSpeed);
         telemetryM.addData("Current pose", follower.getPose());
         telemetryM.addData("Current RPM", shooter.getCurrentRPM());
-        if(getRobotPoseFromCamera() != null){
-            telemetry.addData("Limelight Pose:", getRobotPoseFromCamera());
-            telemetryM.addData("Limelight Pose:", getRobotPoseFromCamera());
+
+        if (limelight.hasTarget()) {
+            telemetry.addData("Limelight Pose", limelight.getLastPose());
+            telemetryM.addData("Limelight Pose", limelight.getLastPose());
         } else {
-            telemetry.addData("LimelightPose", lastCurrentLimeLightPos);
-            telemetryM.addData("Limelight Pose:", lastCurrentLimeLightPos);
+            telemetry.addData("Last LL Pose", lastCurrentLimeLightPos);
+            telemetryM.addData("Last LL Pose", lastCurrentLimeLightPos);
         }
 
         telemetry.update();
