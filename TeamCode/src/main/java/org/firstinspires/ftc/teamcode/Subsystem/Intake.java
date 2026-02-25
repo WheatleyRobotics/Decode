@@ -26,9 +26,9 @@ public class Intake {
         tunnelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void intakeWithShoot(){
+    public void prepShooter(){
         intakeMotor.setPower(INTAKE_SHOOT_SPEED);
-        tunnelMotor.setPower(0.5);
+        tunnelMotor.setPower(0.9);
     }
 
     public void onlyIntake(){

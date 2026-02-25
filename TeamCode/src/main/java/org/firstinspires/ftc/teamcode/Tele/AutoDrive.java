@@ -70,7 +70,7 @@ public class AutoDrive extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         // Limelight init
-        limelight = new LimeLight(hardwareMap);
+        limelight = new LimeLight(hardwareMap, autoAim);
 
         follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null
                 ? startingPose
@@ -211,9 +211,13 @@ public class AutoDrive extends OpMode {
         }
 
         boolean shooterFeeding = shooter.getTargetRPM() > 0 && shooter.isAtTargetRPM();
+        boolean prepShooter = shooter.getCurrentRPM() > 0;
 
         if (shooterFeeding) {
             intake.intakeIn();
+        }
+        else if(prepShooter){
+            intake.prepShooter();
         } else if (gamepad1.left_bumper) {
             intake.intakeIn();
         } else if (gamepad1.y) {

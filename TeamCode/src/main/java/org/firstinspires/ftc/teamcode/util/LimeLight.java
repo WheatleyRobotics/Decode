@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.Commands.GyroAutoAim;
 
 import com.pedropathing.geometry.Pose;
 
@@ -14,13 +15,17 @@ public class LimeLight {
     private Limelight3A camera;
     private LLResult result;
 
+    private GyroAutoAim autoAim;
+
     private Pose lastPose = new Pose();
+    private double ty;
 
     // alliance control
     private boolean isRedAlliance = false;
 
-    public LimeLight(HardwareMap hardwareMap) {
+    public LimeLight(HardwareMap hardwareMap, GyroAutoAim autoAim) {
         camera = hardwareMap.get(Limelight3A.class, "limelight");
+        this.autoAim = autoAim;
     }
 
     /** Start camera stream */
@@ -47,24 +52,28 @@ public class LimeLight {
             Pose3D botpose = result.getBotpose();
 
             // meters → inches, shift origin to field center
-            double xInches = botpose.getPosition().x * 39.3701 + 72;
-            double yInches = botpose.getPosition().y * 39.3701 + 72;
+            double xInches = -botpose.getPosition().x * 39.3701 + 72;
+            double yInches = -botpose.getPosition().y * 39.3701 + 72;
 
             // convert yaw to heading radians
+            /*
             double headingRadians =
                     Math.toRadians(-botpose.getOrientation().getYaw(AngleUnit.DEGREES));
+
+             */
 
             // mirror pose if RED alliance
             if (isRedAlliance) {
                 xInches = 144 - xInches;
                 yInches = 144 - yInches;
-                headingRadians += Math.PI;
+                //headingRadians += Math.PI;
             }
 
             lastPose = new Pose(
                     xInches,
                     yInches,
-                    headingRadians
+                    autoAim.getYaw()
+                    //headingRadians
             );
 
             return lastPose;
@@ -76,6 +85,16 @@ public class LimeLight {
     /** Returns last valid pose (never null) */
     public Pose getLastPose() {
         return lastPose;
+    }
+
+    public double getTagDistanceInches() {
+        result = camera.getLatestResult();
+
+        if (result != null && result.isValid()) {
+            return (result.getBotposeAvgDist() * 39.3701) - 11.82;
+        }
+
+        return 0;
     }
 
     /** Manually set the pose (for gyro reset or calibration) */

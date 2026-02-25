@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Tune Shoot W Intake", group = "Tuning")
@@ -19,6 +20,7 @@ public class TuneShootFinal extends OpMode {
     private DcMotor tunnelMotor;
     private CRServo indexerLeft;
     private CRServo indexerRight;
+    private Servo hood;
 
     private ElapsedTime timer;
     private ElapsedTime maxErrorTimer;
@@ -29,7 +31,7 @@ public class TuneShootFinal extends OpMode {
     public static double D = 0.0;        // Derivative
     public static double F = 0.0;        // Feedforward
 
-    public static double targetRPM = 40; // keep this at the bottom
+    public static double targetRPM = 0; // keep this at the bottom
 
     private PIDFCoefficients lastPIDF = new PIDFCoefficients(P, I, D, F);
 
@@ -37,6 +39,8 @@ public class TuneShootFinal extends OpMode {
 
     // ===== Max RPM Error Tracking =====
     private double maxRPMError = 0.0;
+    //HOOD
+    private double manualVal = 0;
 
     @Override
     public void init() {
@@ -49,6 +53,8 @@ public class TuneShootFinal extends OpMode {
         tunnelMotor = hardwareMap.get(DcMotor.class, "Tunnel");
         indexerLeft = hardwareMap.get(CRServo.class, "IndexerLeft");
         indexerRight = hardwareMap.get(CRServo.class, "IndexerRight");
+        hood = hardwareMap.get(Servo.class, "Hood");
+        hood.setDirection(Servo.Direction.FORWARD);
 
         // ===== ORIGINAL MOTOR SETUP =====
         shooterMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -114,6 +120,16 @@ public class TuneShootFinal extends OpMode {
             indexerRight.setPower(0);
         }
 
+        if (gamepad2.y) {
+            manualVal += 0.01;
+            manualVal = Math.max(0.0, Math.min(1.0, manualVal));
+            hood.setPosition(manualVal);
+        } else if (gamepad2.a) {
+            manualVal -= 0.01;
+            manualVal = Math.max(0.0, Math.min(1.0, manualVal));
+            hood.setPosition(manualVal);
+        }
+
         // ===== Standard Telemetry =====
         telemetry.addData("P", P);
         telemetry.addData("I", I);
@@ -123,6 +139,7 @@ public class TuneShootFinal extends OpMode {
         telemetry.addData("Current RPM", currentRPM);
         telemetry.addData("RPM Error", rpmError);
         telemetry.addData("Max RPM Error", maxRPMError);
+        telemetry.addData("Servo Pos", hood.getPosition());
         telemetry.update();
 
         // ===== Panels Graph Telemetry =====
@@ -132,6 +149,7 @@ public class TuneShootFinal extends OpMode {
         panelsTelemetry.addData("RPMError", rpmError);
         panelsTelemetry.addData("MaxRPMError", maxRPMError);
         panelsTelemetry.addData("Time", t); // optional for graphing vs time
+        panelsTelemetry.addData("Servo Pos", hood.getPosition());
         panelsTelemetry.update(telemetry);
     }
 

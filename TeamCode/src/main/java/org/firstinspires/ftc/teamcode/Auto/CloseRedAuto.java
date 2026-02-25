@@ -56,13 +56,13 @@ public class CloseRedAuto extends OpMode {
 
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(118.9603399433428, 130.38810198300283, Math.toRadians(37)); // x: 25.976203966005663, y: 130.24333994334273 gyro 143
-    private final Pose firstBallsCloseShotPose = new Pose(90, 92, Math.toRadians(51.5)); //x: 48, y: 93, yaw 49
-    private final Pose secondBallsClosePose = new Pose(90, 92, Math.toRadians(50));// yaw 49
+    private final Pose firstBallsCloseShotPose = new Pose(90, 92, Math.toRadians(55)); //x: 48, y: 93, yaw 51.5
+    private final Pose secondBallsClosePose = new Pose(90, 92, Math.toRadians(51));// yaw 49
     private final Pose firstIntakePose = new Pose(96.81019830028329, 89, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
     private final Pose intakeFirstBallsPose = new Pose(126, 89, Math.toRadians(intakeBallsGyroPos)); //y: 88
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
-    private final Pose secondIntakePose = new Pose(98.12181303116145, 65, Math.toRadians(intakeBallsGyroPos)); //y:61
-    private final Pose avoidWallPose = new Pose(98.12181303116145, 65, Math.toRadians(intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(98.12181303116145, 66, Math.toRadians(intakeBallsGyroPos)); //y:61
+    private final Pose avoidWallPose = new Pose(98.12181303116145, 66, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeSecondBallsPose = new Pose(137, 64, Math.toRadians(intakeBallsGyroPos));
     private final Pose thirdIntakePose = new Pose(102.39093484419263, 30.22379603399434, Math.toRadians(intakeBallsGyroPos));
     private final Pose intakeThirdBallsPose = new Pose(132.9830028328612, 34.61189801699716, Math.toRadians(intakeBallsGyroPos));
@@ -161,7 +161,7 @@ public class CloseRedAuto extends OpMode {
             case SHOOT_PRELOAD:
                 if(shooter.isAtTargetRPM()) {
                     shooter.setIndexerPower(autoConstants.indexerPower); // feed balls
-                    //intake.intakeIn();
+                    intake.intakeIn();
                 }
                 if (pathTimer.getElapsedTimeSeconds() > autoConstants.shootPreLoadBalls) {
                     shooter.setIndexerPower(-autoConstants.indexerPower);
@@ -188,7 +188,7 @@ public class CloseRedAuto extends OpMode {
 
             case DRIVE_TO_SHOOT_FIRST_BALLS:
                 double indexerDelay = indexerTimer.getElapsedTimeSeconds();
-                if (indexerDelay < autoConstants.closeFirstBallsIntakeExtraTime) {
+                if (indexerDelay < autoConstants.redCloseFirstBallsIntakeExtraTime) {
                     intake.intakeIn();
                 }
                 else {
@@ -214,13 +214,13 @@ public class CloseRedAuto extends OpMode {
                     double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
 
                     // WAIT before feeding (settle + spin-up time)
-                    if (shootElapsed < autoConstants.closeFirstBallsShootingDelay) {
+                    if (shootElapsed < autoConstants.redCloseFirstBallsShootingDelay) {
                         shooter.setIndexerPower(-1);   // hold balls
                         intake.onlyIntake();           // keep staged
 
                     }
                     // SHOOTING WINDOW
-                    else if (shootElapsed < autoConstants.closeFirstBallsShootingTime) {
+                    else if (shootElapsed < autoConstants.redCloseFirstBallsShootingTime) {
 
                         if (shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
@@ -269,7 +269,7 @@ public class CloseRedAuto extends OpMode {
             case DRIVE_TO_SHOOT_SECOND_BALLS:
                 //check to see if this works
                 indexerDelay = indexerTimer.getElapsedTimeSeconds();
-                if (indexerDelay < autoConstants.closeSecondBallsIntakeExtraTime) {
+                if (indexerDelay < autoConstants.redCloseSecondBallsIntakeExtraTime) {
                     intake.intakeIn();
                 }
                 else {
@@ -291,13 +291,13 @@ public class CloseRedAuto extends OpMode {
                     double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
 
                     // WAIT before feeding (settle + spin-up time)
-                    if (shootElapsed < autoConstants.closeSecondBallsShootingDelay) {
+                    if (shootElapsed < autoConstants.redCloseSecondBallsShootingDelay) {
                         shooter.setIndexerPower(-1);   // hold balls
                         intake.onlyIntake();           // keep staged
 
                     }
                     // SHOOTING WINDOW
-                    else if (shootElapsed < autoConstants.closeFirstBallsShootingTime) {
+                    else if (shootElapsed < autoConstants.redCloseFirstBallsShootingTime) {
 
                         if (shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
@@ -335,7 +335,7 @@ public class CloseRedAuto extends OpMode {
 
             case DRIVE_TO_SHOOT_THIRD_BALLS:
                 indexerDelay = indexerTimer.getElapsedTimeSeconds();
-                if (indexerDelay < autoConstants.closeThirdBallsIntakeExtraTime) {
+                if (indexerDelay < autoConstants.redCloseThirdBallsIntakeExtraTime) {
                     intake.intakeIn();
                 }
                 else {
@@ -356,7 +356,7 @@ public class CloseRedAuto extends OpMode {
                 if (!follower.isBusy()) {
                     double shootElapsed = shootDelayTimer.getElapsedTimeSeconds();
 
-                    if(shootElapsed < autoConstants.closeFirstBallsShootingTime){
+                    if(shootElapsed < autoConstants.redCloseFirstBallsShootingTime){
                         if(shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower); // feed balls
                             intake.intakeIn();
@@ -367,7 +367,7 @@ public class CloseRedAuto extends OpMode {
                         intake.stopIntaking();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.closeFirstBallsShootingTime) {
+                    if (pathTimer.getElapsedTimeSeconds() > autoConstants.redCloseFirstBallsShootingTime) {
                         shooter.autoShooter();
                         intake.stopIntaking();
                         setPathState(PathState.GET_READY_TO_INTAKE_SECOND_BALLS);

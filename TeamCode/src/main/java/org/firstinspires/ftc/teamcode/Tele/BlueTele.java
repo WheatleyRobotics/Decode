@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Tele;
 
+import static org.firstinspires.ftc.teamcode.Tele.TeleConstant.GyroOffsets;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -52,7 +53,7 @@ public class BlueTele extends OpMode {
     private LimeLight limelight;
     public Pose lastCurrentLimeLightPos = new Pose();
 
-    private int gyroPos = 180; // RED: 0, BLUE: 180, PRACTICE: 90
+    private int gyroPos = 200; // RED: 20, BLUE: 200, PRACTICE: 110
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
@@ -70,7 +71,8 @@ public class BlueTele extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         // Limelight init
-        limelight = new LimeLight(hardwareMap);
+        autoAim = new GyroAutoAim(hardwareMap);
+        limelight = new LimeLight(hardwareMap, autoAim);
 
         follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null
                 ? startingPose
@@ -83,8 +85,8 @@ public class BlueTele extends OpMode {
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(54, 92))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(
                         follower::getHeading,
-                        Math.toRadians(132),
-                        1))
+                        Math.toRadians(gyroPos + GyroOffsets), //gyroPos + GyroOffsets)
+                        0.8))
                 .build();
 
         shooter = new Shooter(hardwareMap);
@@ -110,7 +112,6 @@ public class BlueTele extends OpMode {
 
     @Override
     public void loop() {
-
         // Update follower and telemetry
         follower.update();
         telemetryM.update();
@@ -174,25 +175,27 @@ public class BlueTele extends OpMode {
             shooter.stopShooter();
         }
 
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             RPMSpeed = TeleConstant.bumperUpRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.bumperUpOffset);
             gyroShootPos = TeleConstant.bumperUpGyro;
             shooter.setIdleRPM(TeleConstant.bumperUpIdleRPM);
 
-        } else if (gamepad1.dpad_right) {
+        } else if (gamepad2.dpad_right) {
             RPMSpeed = TeleConstant.closeShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.closeShotOffset);
             gyroShootPos = TeleConstant.closeShotGyro;
             shooter.setIdleRPM(TeleConstant.closeShotIdleRPM);
 
-        } else if (gamepad1.dpad_down) {
+        }
+        else if (gamepad2.dpad_down) {
             RPMSpeed = TeleConstant.midShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.midShotOffset);
             gyroShootPos = TeleConstant.midShotGyro;
             shooter.setIdleRPM(TeleConstant.midIdleRPM);
 
-        } else if (gamepad1.dpad_left) {
+        }
+        else if (gamepad2.dpad_left) {
             RPMSpeed = TeleConstant.farShotRPM;
             hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.farShotOffset);
             gyroShootPos = TeleConstant.farShotGyro;
@@ -200,10 +203,15 @@ public class BlueTele extends OpMode {
         }
 
         boolean shooterFeeding = shooter.getTargetRPM() > 0 && shooter.isAtTargetRPM();
+        boolean prepShooter = shooter.getTargetRPM() > 0;
 
         if (shooterFeeding) {
             intake.intakeIn();
-        } else if (gamepad1.left_bumper) {
+        }
+        else if(prepShooter){
+            intake.prepShooter();
+        }
+        else if (gamepad1.left_bumper) {
             intake.intakeIn();
         } else if (gamepad1.y) {
             intake.intakeOut();
@@ -214,10 +222,19 @@ public class BlueTele extends OpMode {
 
         shooter.update();
 
+        /*
         if (gamepad2.y) {
             hood.manualUp();
         } else if (gamepad2.a) {
             hood.manualDown();
+        }
+         */
+
+        if(gamepad2.yWasPressed()){
+            GyroOffsets += 10;
+        }
+        else if(gamepad2.aWasPressed()){
+            GyroOffsets -= 10;
         }
 
         // =========================================================
@@ -233,10 +250,11 @@ public class BlueTele extends OpMode {
         telemetry.addData("Current RPM", shooter.getCurrentRPM());
         telemetry.addData("RPM Difference", shooter.RPMDiff());
         telemetry.addData("Servo Pos", hood.getServoPos());
-        telemetry.addData("Pinpoint Yaw (deg)", follower.getHeading());
+        telemetry.addData("Pinpoint Yaw (deg)", Math.toDegrees(follower.getHeading()));
         telemetry.addData("Target Yaw (deg)", gyroShootPos);
         telemetry.addData("Auto Aim Active", autoAimActive);
         telemetry.addData("Odometry Pose", follower.getPose());
+        telemetry.addData("target auto score: ", -(gyroPos + GyroOffsets));
 
         telemetryM.addData("Target RPM", RPMSpeed);
         telemetryM.addData("Current pose", follower.getPose());
@@ -245,6 +263,7 @@ public class BlueTele extends OpMode {
         if (limelight.hasTarget()) {
             telemetry.addData("Limelight Pose", limelight.getLastPose());
             telemetryM.addData("Limelight Pose", limelight.getLastPose());
+            telemetry.addData("Distance", limelight.getTagDistanceInches());
         } else {
             telemetry.addData("Last LL Pose", lastCurrentLimeLightPos);
             telemetryM.addData("Last LL Pose", lastCurrentLimeLightPos);

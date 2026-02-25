@@ -12,7 +12,7 @@ public class Shooter {
     private final CRServo indexerLeft, indexerRight;
 
     // ---------- FINAL PIDF ----------
-    private static final double kP = 200; //80
+    private static final double kP = 250; //200
     private static final double kI = 0;
     private static final double kD = 8;
     private static final double kF = 18;
@@ -68,6 +68,7 @@ public class Shooter {
             shooterMotor.setVelocity(targetTicksPerSecond);
         } else {
             //shooterMotor.setPower(TeleConstant.ildeRPM);
+            shooterMotor.setPower(0);
         }
 
         double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;

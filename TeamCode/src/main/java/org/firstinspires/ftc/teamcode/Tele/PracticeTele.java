@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Tele;
 
+import static org.firstinspires.ftc.teamcode.Tele.TeleConstant.GyroOffsets;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -52,7 +53,7 @@ public class PracticeTele extends OpMode {
     private LimeLight limelight;
     public Pose lastCurrentLimeLightPos = new Pose();
 
-    private int gyroPos = 90; // RED: 0, BLUE: 180, PRACTICE: 90
+    private int gyroPos = 110; // RED: 20, BLUE: 200, PRACTICE: 110
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
@@ -70,7 +71,8 @@ public class PracticeTele extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         // Limelight init
-        limelight = new LimeLight(hardwareMap);
+        autoAim = new GyroAutoAim(hardwareMap);
+        limelight = new LimeLight(hardwareMap, autoAim);
 
         follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null
                 ? startingPose
@@ -83,14 +85,13 @@ public class PracticeTele extends OpMode {
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(54, 92))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(
                         follower::getHeading,
-                        Math.toRadians(132),
-                        1))
+                        Math.toRadians(gyroPos + GyroOffsets),
+                        0.8))
                 .build();
 
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         hood = new Hood(hardwareMap);
-        autoAim = new GyroAutoAim(hardwareMap);
 
         // Initialize drawing offsets
         drawing.init();
@@ -198,10 +199,15 @@ public class PracticeTele extends OpMode {
         }
 
         boolean shooterFeeding = shooter.getTargetRPM() > 0 && shooter.isAtTargetRPM();
+        boolean prepShooter = shooter.getTargetRPM() > 0;
 
         if (shooterFeeding) {
             intake.intakeIn();
-        } else if (gamepad1.left_bumper) {
+        }
+        else if(prepShooter){
+            intake.prepShooter();
+        }
+        else if (gamepad1.left_bumper) {
             intake.intakeIn();
         } else if (gamepad1.y) {
             intake.intakeOut();
@@ -212,10 +218,20 @@ public class PracticeTele extends OpMode {
 
         shooter.update();
 
+        /*
         if (gamepad2.y) {
             hood.manualUp();
         } else if (gamepad2.a) {
             hood.manualDown();
+        }
+
+         */
+
+        if(gamepad2.right_bumper){
+            GyroOffsets += 10;
+        }
+        else if(gamepad2.left_bumper){
+            GyroOffsets -= 10;
         }
 
         // =========================================================
@@ -243,6 +259,7 @@ public class PracticeTele extends OpMode {
         if (limelight.hasTarget()) {
             telemetry.addData("Limelight Pose", limelight.getLastPose());
             telemetryM.addData("Limelight Pose", limelight.getLastPose());
+            telemetry.addData("Distance", limelight.getTagDistanceInches());
         } else {
             telemetry.addData("Last LL Pose", lastCurrentLimeLightPos);
             telemetryM.addData("Last LL Pose", lastCurrentLimeLightPos);
