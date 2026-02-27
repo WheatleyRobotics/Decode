@@ -67,8 +67,8 @@ public class Shooter {
             double targetTicksPerSecond = (motorRPM / 60.0) * ticksPerRev;
             shooterMotor.setVelocity(targetTicksPerSecond);
         } else {
-            //shooterMotor.setPower(TeleConstant.ildeRPM);
-            shooterMotor.setPower(0);
+            shooterMotor.setPower(TeleConstant.ildeRPM);
+            //shooterMotor.setPower(0);
         }
 
         double motorRPM = shooterMotor.getVelocity() / ticksPerRev * 60.0;
@@ -90,6 +90,17 @@ public class Shooter {
             }
         }
     }
+    public double RPMSpeed(double distance) {
+        /*
+        double RPMSpeedShoot = -0.0000132162f * (distance * distance * distance)
+                + 0.00383918f * (distance * distance)
+                - 0.00939464f * distance
+                + 50f;
+         */
+        double RPMSpeedShoot =  0.00143946 * Math.pow(distance, 2) + 0.0848202 * distance + 49.94298;
+        return RPMSpeedShoot;
+    }
+
 
     // ---------- STOP ----------
     public void stopShooter() {

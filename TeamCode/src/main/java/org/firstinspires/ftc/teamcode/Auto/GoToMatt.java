@@ -352,7 +352,7 @@ public class GoToMatt extends OpMode {
                 // hold robot position (no new path)
                 follower.breakFollowing();   // ensures robot stays locked
 
-                if (pathTimer.getElapsedTimeSeconds() > autoConstants.thirdBallIntakeWaitTime) {
+                if (pathTimer.getElapsedTimeSeconds() > autoConstants.blueCloseThirdBallsIntakeExtraTime) {
                     setPathState(PathState.DRIVE_TO_SHOOT_THIRD_BALLS);
                 }
 

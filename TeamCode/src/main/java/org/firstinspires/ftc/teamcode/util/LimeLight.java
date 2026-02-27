@@ -4,7 +4,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Commands.GyroAutoAim;
 
@@ -87,11 +86,12 @@ public class LimeLight {
         return lastPose;
     }
 
-    public double getTagDistanceInches() {
+    public double distanceFromTagInches() {
         result = camera.getLatestResult();
 
         if (result != null && result.isValid()) {
-            return (result.getBotposeAvgDist() * 39.3701) - 11.82;
+            return (result.getBotposeAvgDist() * 39.3701) - 9.82; //11.82
+            //return (result.getBotposeAvgDist() * 39.3701) - 3 ;
         }
 
         return 0;

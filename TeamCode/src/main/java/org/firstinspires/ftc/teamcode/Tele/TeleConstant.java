@@ -4,8 +4,9 @@ import com.pedropathing.geometry.Pose;
 
 public class TeleConstant {
     //auto
-    public static final double FirstBallBlueCloseShotRPM = 56;
-    public static final double SecondBallBlueCloseShotRPM = 56;
+    public static final double FirstBallBlueCloseShotRPM = 57;
+    public static final double SecondBallBlueCloseShotRPM = 58;
+    public static final double ThirdBallBlueCloseShotRPM = 57;
 
     public static final double FirstBallRedCloseShotRPM = 67; //64.5
     public static final double SecondBallRedCloseShotRPM = 69; //68.8
@@ -24,7 +25,7 @@ public class TeleConstant {
     public static final double closeShotRPM = 57; //65
     public static final double closeShotGyro = 130; // left is - right is +
     //public static final double closeShotHoodPos = 0.7;
-    public static final double closeShotOffset = 0.35; // 0.64
+    public static final double closeShotOffset = 0.34; // 0.35
     public static final double closeShotIdleRPM = 0.3;
     public static final double closeShotX = 80;
     public static final double closeShotY = 101;
