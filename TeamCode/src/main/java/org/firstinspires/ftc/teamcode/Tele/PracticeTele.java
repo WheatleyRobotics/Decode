@@ -253,7 +253,7 @@ public class PracticeTele extends OpMode {
         if (intakeOutActive) {
             intake.intakeOut();
 
-            if (intakeOutTimer.seconds() >= 0.1) {
+            if (intakeOutTimer.seconds() >= TeleConstant.outakeTime) {
                 intakeOutActive = false;
             }
         }

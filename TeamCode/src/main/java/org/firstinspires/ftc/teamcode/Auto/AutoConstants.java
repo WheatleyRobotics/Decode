@@ -10,10 +10,10 @@ public class AutoConstants {
     public final double bumperUpShootingTimer = 6; // 3.5
 
     //Blue
-    public final double blueCloseFirstBallsIntakeExtraTime = 1.0; //3
-    public final double blueCloseFirstBallsShootingDelay = 3.1;
+    public final double blueCloseFirstBallsIntakeExtraTime = 1.4; //3
+    public final double blueCloseFirstBallsShootingDelay = 3.2;
     public final double blueCloseFirstBallsShootingTime = 5.7;
-    public final double blueCloseSecondBallsIntakeExtraTime = 0.7; //0.5
+    public final double blueCloseSecondBallsIntakeExtraTime = 0.5; //0.5
     public final double blueCloseSecondBallsShootingDelay = 3.1;
     public final double blueCloseSecondBallsShootingTime = 5.5;
     public final double blueCloseThirdBallsIntakeExtraTime = 1.3;

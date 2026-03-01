@@ -17,10 +17,10 @@ public class ShooterPIDFTunerGraph extends OpMode {
     private ElapsedTime timer;
 
     // ===== EDIT THESE IN PANELS =====
-    public static double P = 0.0;
+    public static double P = 250;
     public static double I = 0.0;
-    public static double D = 0.0;
-    public static double F = 0.0;
+    public static double D = 8;
+    public static double F = 18;
 
     public static double targetRPM = 130; // example: 130, 192, 255
 

@@ -91,13 +91,19 @@ public class Shooter {
         }
     }
     public double RPMSpeed(double distance) {
-        /*
-        double RPMSpeedShoot = -0.0000132162f * (distance * distance * distance)
-                + 0.00383918f * (distance * distance)
-                - 0.00939464f * distance
-                + 50f;
-         */
-        double RPMSpeedShoot =  0.00143946 * Math.pow(distance, 2) + 0.0848202 * distance + 49.94298;
+        //beginning kinda inconsistent
+        //double RPMSpeedShoot =  0.00143946 * Math.pow(distance, 2) + 0.0848202 * distance + 49.94298;
+        //missing middle part
+        //double RPMSpeedShoot = 0.00116369 * Math.pow(distance, 2) + 0.11544 * distance + 49.6868;
+        //good but missing close shots
+        //double RPMSpeedShoot = 0.00115217 * Math.pow(distance, 2) + 0.116927 * distance + 49.66988;
+        //misses at a couple of places but really good right now
+        //double RPMSpeedShoot = 0.00115374 * Math.pow(distance, 2) + 0.116037 * distance + 49.74027;
+        //misses a a couple
+        //double RPMSpeedShoot = 0.00130886 * Math.pow(distance, 2) + 0.0971697 * distance + 49.90263;
+        //a bit better
+        //double RPMSpeedShoot = 0.00119297 * Math.pow(distance, 2) + 0.110161 * distance + 49.8656;
+        double RPMSpeedShoot = 0.00134103 * Math.pow(distance, 2) + 0.0943011 * distance + 49.84634;
         return RPMSpeedShoot;
     }
 

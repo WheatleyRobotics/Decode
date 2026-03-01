@@ -57,17 +57,17 @@ public class CloseBlueAuto extends OpMode {
 
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(25.855524079320112, 130.38810198300283, Math.toRadians(143)); // x: 25.976203966005663, y: 130.24333994334273 gyro 143
-    private final Pose firstBallsCloseShotPose = new Pose(54, 92, Math.toRadians(132)); //yaw 134
-    private final Pose secondBallsClosePose = new Pose(54, 92, Math.toRadians(132)); //134
-    private final Pose thirdBallsClosePose = new Pose(54, 92, Math.toRadians(131)); //130
-    private final Pose firstIntakePose = new Pose(59, 91, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
-    private final Pose intakeFirstBallsPose = new Pose(27, 91, Math.toRadians(intakeBallsGyroPos)); //x: 27
+    private final Pose firstBallsCloseShotPose = new Pose(54, 92, Math.toRadians(134)); //yaw 134
+    private final Pose secondBallsClosePose = new Pose(54, 92, Math.toRadians(132)); //132
+    private final Pose thirdBallsClosePose = new Pose(54, 92, Math.toRadians(132)); //130
+    private final Pose firstIntakePose = new Pose(59, 92, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
+    private final Pose intakeFirstBallsPose = new Pose(34, 92, Math.toRadians(intakeBallsGyroPos)); //x: 27
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
-    private final Pose secondIntakePose = new Pose(58, 65, Math.toRadians(intakeBallsGyroPos)); //y:63
-    private final Pose avoidWallPose = new Pose(58, 65, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeSecondBallsPose = new Pose(18, 65, Math.toRadians(intakeBallsGyroPos)); //x:20
-    private final Pose thirdIntakePose = new Pose(58, 42, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeThirdBallsPose = new Pose(18, 42, Math.toRadians(intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(58, 66, Math.toRadians(intakeBallsGyroPos)); //y:63
+    private final Pose avoidWallPose = new Pose(56, 66, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeSecondBallsPose = new Pose(25, 66, Math.toRadians(intakeBallsGyroPos)); //x:20
+    private final Pose thirdIntakePose = new Pose(58, 44, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeThirdBallsPose = new Pose(25, 44, Math.toRadians(intakeBallsGyroPos));
     private final Pose endingPoint = new Pose(20, 63, Math.toRadians(intakeBallsGyroPos));
 
     private PathChain setUpIntakeFirstBallsPos, intakeFirstBallsPos, avoidBangPos, shootFirstBallsPos,
@@ -182,6 +182,7 @@ public class CloseBlueAuto extends OpMode {
 
             case INTAKE_FIRST_BALLS:
                 intake.intakeIn();
+                shooter.setIndexerPower(-1);
                 if (!follower.isBusy()) {
                     follower.followPath(intakeFirstBallsPos, true);
                     setPathState(PathState.DRIVE_TO_SHOOT_FIRST_BALLS);
@@ -222,12 +223,12 @@ public class CloseBlueAuto extends OpMode {
                     }
                     // SHOOTING WINDOW
                     else if (shootElapsed < autoConstants.blueCloseFirstBallsShootingTime) {
-
                         if (shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
                             intake.intakeIn();
                         } else {
                             shooter.setIndexerPower(-1);
+                            intake.prepShooter();
                         }
 
                     }
@@ -249,6 +250,7 @@ public class CloseBlueAuto extends OpMode {
                 break;
 
             case INTAKE_SECOND_BALLS:
+                shooter.setIndexerPower(-1);
                 intake.intakeIn();
                 if (!follower.isBusy()) {
                     follower.followPath(intakeSecondBallsPos, true);
@@ -299,12 +301,12 @@ public class CloseBlueAuto extends OpMode {
                     }
                     // SHOOTING WINDOW
                     else if (shootElapsed < autoConstants.blueCloseSecondBallsShootingTime) {
-
                         if (shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
                             intake.intakeIn();
                         } else {
                             shooter.setIndexerPower(-1);
+                            intake.prepShooter();
                         }
 
                     }
@@ -319,6 +321,7 @@ public class CloseBlueAuto extends OpMode {
 
             // ===== THIRD BALLS =====
             case GET_READY_TO_INTAKE_THIRD_BALLS:
+                shooter.setIndexerPower(-autoConstants.indexerPower);
                 if (!follower.isBusy()) {
                     follower.followPath(setUpIntakeThirdBallsPos, true);
                     setPathState(PathState.INTAKE_THIRD_BALLS);
@@ -401,6 +404,7 @@ public class CloseBlueAuto extends OpMode {
                             intake.intakeIn();
                         } else {
                             shooter.setIndexerPower(-1);
+                            intake.prepShooter();
                         }
 
                     }

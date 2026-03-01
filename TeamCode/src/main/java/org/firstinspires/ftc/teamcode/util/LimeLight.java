@@ -11,7 +11,7 @@ import com.pedropathing.geometry.Pose;
 
 public class LimeLight {
 
-    private Limelight3A camera;
+    public Limelight3A camera;
     private LLResult result;
 
     private GyroAutoAim autoAim;
@@ -91,7 +91,6 @@ public class LimeLight {
 
         if (result != null && result.isValid()) {
             return (result.getBotposeAvgDist() * 39.3701) - 9.82; //11.82
-            //return (result.getBotposeAvgDist() * 39.3701) - 3 ;
         }
 
         return 0;

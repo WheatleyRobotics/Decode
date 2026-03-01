@@ -33,14 +33,8 @@ public class Hood {
     }
 
     public double hoodPosVision(double distance) {
-        /*
-        double hoodPosVision = (3.04322e-7f) * (distance * distance * distance)
-                - 0.0000976796f * (distance * distance)
-                + 0.0100149f * distance
-                + 0.35f;
-         */
-
-        double hoodPosVision = -0.0000424225 * Math.pow(distance, 2) + 0.00784549 * distance + 0.351313;
+        //double hoodPosVision = -0.0000424225 * Math.pow(distance, 2) + 0.00784549 * distance + 0.351313;
+        double hoodPosVision = -0.0000386474 * Math.pow(distance, 2) + 0.00703312 * distance + 0.372902;
         return hoodPosVision;
     }
 
