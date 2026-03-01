@@ -103,7 +103,7 @@ public class Shooter {
         //double RPMSpeedShoot = 0.00130886 * Math.pow(distance, 2) + 0.0971697 * distance + 49.90263;
         //a bit better
         //double RPMSpeedShoot = 0.00119297 * Math.pow(distance, 2) + 0.110161 * distance + 49.8656;
-        double RPMSpeedShoot = 0.00134103 * Math.pow(distance, 2) + 0.0943011 * distance + 49.84634;
+        double RPMSpeedShoot = 0.00134103 * Math.pow(distance, 2)+ 0.0943011 * distance + 49.84634;
         return RPMSpeedShoot;
     }
 

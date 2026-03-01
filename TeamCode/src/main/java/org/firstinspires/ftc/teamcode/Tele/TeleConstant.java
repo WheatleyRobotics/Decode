@@ -8,8 +8,8 @@ public class TeleConstant {
     public static final double SecondBallBlueCloseShotRPM = 58;
     public static final double ThirdBallBlueCloseShotRPM = 58;
 
-    public static final double FirstBallRedCloseShotRPM = 67; //64.5
-    public static final double SecondBallRedCloseShotRPM = 69; //68.8
+    public static final double FirstBallRedCloseShotRPM = 56; //64.5
+    public static final double SecondBallRedCloseShotRPM = 56; //68.8
 
     public static final double startingHoodPos = 0.29; //0.39 // 0.31 is the new pos
     public static double ildeRPM = 0.3;

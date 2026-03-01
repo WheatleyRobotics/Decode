@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Commands.GyroAutoAim;
+import org.firstinspires.ftc.teamcode.Commands.LimeLightAutoAlign;
 import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
@@ -43,6 +44,7 @@ public class RedTele extends OpMode {
 
     // Limelight
     private LimeLight limelight;
+    private LimeLightAutoAlign limeAlign;
     public Pose lastCurrentLimeLightPos = new Pose();
 
     private int gyroPos = 20; // RED: 20, BLUE: 195, PRACTICE: 110
@@ -70,6 +72,7 @@ public class RedTele extends OpMode {
         // Limelight init
         autoAim = new GyroAutoAim(hardwareMap);
         limelight = new LimeLight(hardwareMap, autoAim);
+        limeAlign = new LimeLightAutoAlign(limelight);
 
         follower.setStartingPose(TeleConstant.startingPoseAfterAuto == null
                 ? startingPose
@@ -141,9 +144,9 @@ public class RedTele extends OpMode {
         if (!automatedDrive) {
             if (!slowMode) {
                 follower.setTeleOpDrive(
-                        -gamepad1.left_stick_y,
-                        -gamepad1.left_stick_x,
-                        -gamepad1.right_stick_x,
+                        -gamepad1.left_stick_y * 0.9,
+                        -gamepad1.left_stick_x * 0.9,
+                        -gamepad1.right_stick_x * 0.9,
                         false,
                         Math.toRadians(gyroPos)
                 );
@@ -177,11 +180,11 @@ public class RedTele extends OpMode {
         // Shooter and hood controls
         // Declare this at the top of your OpMode class
 
-        if (gamepad2.a && !lastToggle) {
+        if (gamepad1.a && !lastToggle) {
             visionMode = !visionMode;
         }
 
-        lastToggle = gamepad2.a;
+        lastToggle = gamepad1.a;
 
         // Switch based on visionMode
         switch (visionMode ? 1 : 2) {
@@ -191,7 +194,7 @@ public class RedTele extends OpMode {
                         RPMSpeed = shooter.RPMSpeed(limelight.distanceFromTagInches());
                         shooter.setTargetRPM(RPMSpeed);
                     } else {
-                        shooter.setTargetRPM(TeleConstant.bumperUpRPM); // keep last speed if no target
+                        shooter.setTargetRPM(TeleConstant.bumperUpTeleRPM); // keep last speed if no target
                     }
                 } else {
                     shooter.stopShooter();
@@ -202,7 +205,34 @@ public class RedTele extends OpMode {
                     hood.setHoodPos(hoodPos);
                 }
                 else{
-                    hood.setHoodPos(TeleConstant.startingHoodPos+TeleConstant.bumperUpOffset);
+                    hood.setHoodPos(0.13);
+                }
+
+                if(limelight.hasTarget()) {
+                    // Default driver turn input
+                    double turn = -gamepad1.right_stick_x * 0.9;
+
+                    // Deadzone threshold for manual override
+                    double rightStickDeadzone = 0.2;
+
+                    // Auto-turn while shooting if right trigger is pressed and driver isn't moving the right stick
+                    if (gamepad1.right_trigger > 0.8 &&
+                            Math.abs(gamepad1.right_stick_x) < rightStickDeadzone) {
+                        turn = limeAlign.update();          // auto-turn to target
+                        if (limeAlign.isAligned()) {
+                            turn = 0;                        // stop turning if already aligned
+                        }
+                    }
+
+                    // Apply teleop drive with auto-turn
+                    double speedMultiplier = slowMode ? slowModeMultiplier : 1.0;
+                    follower.setTeleOpDrive(
+                            -gamepad1.left_stick_y * 0.9,
+                            -gamepad1.left_stick_x * 0.9,
+                            turn,
+                            false,
+                            Math.toRadians(gyroPos)
+                    );
                 }
                 break;
 
@@ -213,22 +243,22 @@ public class RedTele extends OpMode {
                     shooter.stopShooter();
                 }
 
-                if (gamepad2.dpad_up) {
+                if (gamepad1.dpad_up) {
                     RPMSpeed = TeleConstant.bumperUpRPM;
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.bumperUpOffset);
                     gyroShootPos = TeleConstant.bumperUpGyro;
                     shooter.setIdleRPM(TeleConstant.bumperUpIdleRPM);
-                } else if (gamepad2.dpad_right) {
+                } else if (gamepad1.dpad_right) {
                     RPMSpeed = TeleConstant.closeShotRPM;
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.closeShotOffset);
                     gyroShootPos = TeleConstant.closeShotGyro;
                     shooter.setIdleRPM(TeleConstant.closeShotIdleRPM);
-                } else if (gamepad2.dpad_down) {
+                } else if (gamepad1.dpad_down) {
                     RPMSpeed = TeleConstant.midShotRPM;
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.midShotOffset);
                     gyroShootPos = TeleConstant.midShotGyro;
                     shooter.setIdleRPM(TeleConstant.midIdleRPM);
-                } else if (gamepad2.dpad_left) {
+                } else if (gamepad1.dpad_left) {
                     RPMSpeed = TeleConstant.farShotRPM;
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.farShotOffset);
                     gyroShootPos = TeleConstant.farShotGyro;
@@ -337,7 +367,6 @@ public class RedTele extends OpMode {
         telemetryM.addData("Target RPM", RPMSpeed);
         telemetryM.addData("Current pose", follower.getPose());
         telemetryM.addData("Current RPM", shooter.getCurrentRPM());
-
         if (limelight.hasTarget()) {
             telemetry.addData("Limelight Pose", limelight.getLastPose());
             telemetryM.addData("Limelight Pose", limelight.getLastPose());

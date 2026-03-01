@@ -56,16 +56,17 @@ public class CloseRedAuto extends OpMode {
 
     // ===== POSES (UNCHANGED) =====
     private final Pose startingPose = new Pose(118.9603399433428, 130.38810198300283, Math.toRadians(37)); // x: 25.976203966005663, y: 130.24333994334273 gyro 143
-    private final Pose firstBallsCloseShotPose = new Pose(90, 92, Math.toRadians(55)); //x: 48, y: 93, yaw 51.5
-    private final Pose secondBallsClosePose = new Pose(90, 92, Math.toRadians(51));// yaw 49
-    private final Pose firstIntakePose = new Pose(96.81019830028329, 89, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
+    private final Pose firstBallsCloseShotPose = new Pose(90, 92, Math.toRadians(45)); //x: 48, y: 93, yaw 51.5
+    private final Pose secondBallsClosePose = new Pose(90, 92, Math.toRadians(45));// yaw 49
+    private final Pose thirdBallsClosePose = new Pose(90, 92, Math.toRadians(45));
+    private final Pose firstIntakePose = new Pose(93, 89, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
     private final Pose intakeFirstBallsPose = new Pose(126, 89, Math.toRadians(intakeBallsGyroPos)); //y: 88
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
-    private final Pose secondIntakePose = new Pose(98.12181303116145, 66, Math.toRadians(intakeBallsGyroPos)); //y:61
-    private final Pose avoidWallPose = new Pose(98.12181303116145, 66, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeSecondBallsPose = new Pose(137, 64, Math.toRadians(intakeBallsGyroPos));
-    private final Pose thirdIntakePose = new Pose(102.39093484419263, 30.22379603399434, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeThirdBallsPose = new Pose(132.9830028328612, 34.61189801699716, Math.toRadians(intakeBallsGyroPos));
+    private final Pose secondIntakePose = new Pose(93, 66, Math.toRadians(intakeBallsGyroPos)); //y:61
+    private final Pose avoidWallPose = new Pose(97, 66, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeSecondBallsPose = new Pose(135, 64, Math.toRadians(intakeBallsGyroPos));
+    private final Pose thirdIntakePose = new Pose(97, 44, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeThirdBallsPose = new Pose(130, 44, Math.toRadians(intakeBallsGyroPos));
     private final Pose endingPoint = new Pose(131.71954674220962, 58.49008498583567, Math.toRadians(intakeBallsGyroPos));
 
     private PathChain setUpIntakeFirstBallsPos, intakeFirstBallsPos, avoidBangPos, shootFirstBallsPos,
@@ -127,13 +128,13 @@ public class CloseRedAuto extends OpMode {
                 .build();
 
         shootThirdBallsPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeThirdBallsPose, firstBallsCloseShotPose))
-                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), firstBallsCloseShotPose.getHeading())
+                .addPath(new BezierLine(intakeThirdBallsPose, thirdBallsClosePose))
+                .setLinearHeadingInterpolation(intakeThirdBallsPose.getHeading(), thirdBallsClosePose.getHeading())
                 .build();
 
         end = follower.pathBuilder()
-                .addPath(new BezierLine(firstBallsCloseShotPose, endingPoint))
-                .setLinearHeadingInterpolation(firstBallsCloseShotPose.getHeading(), endingPoint.getHeading())
+                .addPath(new BezierLine(thirdBallsClosePose, endingPoint))
+                .setLinearHeadingInterpolation(thirdBallsClosePose.getHeading(), endingPoint.getHeading())
                 .build();
     }
 
@@ -297,7 +298,7 @@ public class CloseRedAuto extends OpMode {
 
                     }
                     // SHOOTING WINDOW
-                    else if (shootElapsed < autoConstants.redCloseFirstBallsShootingTime) {
+                    else if (shootElapsed < autoConstants.redCloseSecondBallsShootingTime) {
 
                         if (shooter.isAtTargetRPM()) {
                             shooter.setIndexerPower(autoConstants.indexerPower);
@@ -319,6 +320,7 @@ public class CloseRedAuto extends OpMode {
 
             // ===== THIRD BALLS =====
             case GET_READY_TO_INTAKE_THIRD_BALLS:
+                shooter.setIndexerPower(-1);
                 if (!follower.isBusy()) {
                     follower.followPath(setUpIntakeThirdBallsPos, true);
                     setPathState(PathState.INTAKE_THIRD_BALLS);
