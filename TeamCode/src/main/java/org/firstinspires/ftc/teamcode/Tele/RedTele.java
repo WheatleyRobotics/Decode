@@ -367,6 +367,7 @@ public class RedTele extends OpMode {
         telemetryM.addData("Target RPM", RPMSpeed);
         telemetryM.addData("Current pose", follower.getPose());
         telemetryM.addData("Current RPM", shooter.getCurrentRPM());
+
         if (limelight.hasTarget()) {
             telemetry.addData("Limelight Pose", limelight.getLastPose());
             telemetryM.addData("Limelight Pose", limelight.getLastPose());

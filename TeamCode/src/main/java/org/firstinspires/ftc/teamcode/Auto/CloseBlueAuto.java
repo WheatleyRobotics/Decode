@@ -61,13 +61,13 @@ public class CloseBlueAuto extends OpMode {
     private final Pose secondBallsClosePose = new Pose(54, 92, Math.toRadians(132)); //132
     private final Pose thirdBallsClosePose = new Pose(54, 92, Math.toRadians(132)); //130
     private final Pose firstIntakePose = new Pose(59, 92, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
-    private final Pose intakeFirstBallsPose = new Pose(34, 92, Math.toRadians(intakeBallsGyroPos)); //x: 27
+    private final Pose intakeFirstBallsPose = new Pose(32, 92, Math.toRadians(intakeBallsGyroPos)); //x: 27
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
     private final Pose secondIntakePose = new Pose(58, 66, Math.toRadians(intakeBallsGyroPos)); //y:63
     private final Pose avoidWallPose = new Pose(56, 66, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeSecondBallsPose = new Pose(25, 66, Math.toRadians(intakeBallsGyroPos)); //x:20
+    private final Pose intakeSecondBallsPose = new Pose(28, 66, Math.toRadians(intakeBallsGyroPos)); //x:20
     private final Pose thirdIntakePose = new Pose(58, 44, Math.toRadians(intakeBallsGyroPos));
-    private final Pose intakeThirdBallsPose = new Pose(25, 44, Math.toRadians(intakeBallsGyroPos));
+    private final Pose intakeThirdBallsPose = new Pose(28, 44, Math.toRadians(intakeBallsGyroPos));
     private final Pose endingPoint = new Pose(20, 63, Math.toRadians(intakeBallsGyroPos));
 
     private PathChain setUpIntakeFirstBallsPos, intakeFirstBallsPos, avoidBangPos, shootFirstBallsPos,

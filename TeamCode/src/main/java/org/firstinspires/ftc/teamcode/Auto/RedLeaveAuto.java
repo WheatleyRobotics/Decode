@@ -8,17 +8,20 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Subsystem.Hood;
 import org.firstinspires.ftc.teamcode.Subsystem.Shooter;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Subsystem.Intake;
-//import org.firstinspires.ftc.teamcode.Subsystem.Hood;
+import org.firstinspires.ftc.teamcode.Tele.TeleConstant;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Leave Auto")
-public class LeaveAuto extends OpMode {
+@Autonomous(name = "Shoot And Leave Red")
+public class RedLeaveAuto extends OpMode {
+    private final AutoConstants autoConstants = new AutoConstants();
+
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
-    //private Hood hood;
+    private Hood hood;
 
     private Timer pathTimer;
     private Timer opModeTimer;
@@ -33,10 +36,10 @@ public class LeaveAuto extends OpMode {
     private PathState pathState;
 
     private final Pose startingPose =
-            new Pose(64.19692307692308, 7.778461538461562, Math.toRadians(90));
+            new Pose(118.9603399433428, 130.38810198300283, Math.toRadians(37));
 
     private final Pose intakePose =
-            new Pose(38.27692307692308, 34.227692307692294, Math.toRadians(180));
+            new Pose(73.68271954674222, 132.60906515580734, Math.toRadians(37));
 
     private PathChain driveStartPoseShootPos;
 
@@ -57,62 +60,75 @@ public class LeaveAuto extends OpMode {
 
     public void statePathUpdate() {
         switch (pathState) {
+
             case SPIN_UP_SHOOTER:
-                //hood.setHoodPos(0.6);
-                shooter.setTargetRPM(130);
-                if (shooter.isAtTargetRPM()
-                        || pathTimer.getElapsedTimeSeconds() > 0.5) {
+
+                hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.bumperUpOffset);
+                shooter.setTargetRPM(TeleConstant.bumperUpRPM);
+
+                if (pathTimer.getElapsedTimeSeconds() >
+                        autoConstants.preLoadOnlySpinUpShooterWait) {
                     setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;
 
             case SHOOT_PRELOAD:
-                shooter.setIndexerPower(1);
-                intake.intakeIn();
 
-                if (pathTimer.getElapsedTimeSeconds() > 2.5) {
-                    shooter.setIndexerPower(0);
+                if (shooter.isAtTargetRPM()) {
+                    shooter.setIndexerPower(autoConstants.indexerPower);
+                    intake.intakeIn();
+                }
+
+                if (pathTimer.getElapsedTimeSeconds() >
+                        autoConstants.shootPreLoadBalls) {
+
+                    shooter.setIndexerPower(0);   // stop feeding
+                    intake.stopIntaking();
+                    shooter.autoShooter();        // stop shooter
+
                     setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
                 }
                 break;
 
             case DRIVE_STARTPOS_SHOOT_POS:
+
                 follower.followPath(driveStartPoseShootPos, true);
                 setPathState(PathState.DONE);
                 break;
 
             case DONE:
-                // Do nothing
                 break;
         }
     }
 
     @Override
     public void init() {
+
         pathTimer = new Timer();
         opModeTimer = new Timer();
-        opModeTimer.resetTimer();
 
         follower = Constants.createFollower(hardwareMap);
-        //shooter = new Shooter(hardwareMap);
-        //intake = new Intake(hardwareMap);
-        //hood = new Hood(hardwareMap);
+        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
+        hood = new Hood(hardwareMap);
 
         buildPaths();
         follower.setPose(startingPose);
 
-        pathState = PathState.DRIVE_STARTPOS_SHOOT_POS;
+        pathState = PathState.SPIN_UP_SHOOTER;
+
+        shooter.auto = true;
     }
 
     @Override
     public void start() {
         opModeTimer.resetTimer();
-        setPathState(PathState.DRIVE_STARTPOS_SHOOT_POS);
-        shooter.auto = true;
+        // DO NOT change state here or it will skip preload
     }
 
     @Override
     public void loop() {
+
         shooter.update();
         follower.update();
         statePathUpdate();
@@ -124,5 +140,6 @@ public class LeaveAuto extends OpMode {
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading", follower.getPose().getHeading());
         telemetry.addData("Path Time", pathTimer.getElapsedTimeSeconds());
+        telemetry.update();
     }
 }

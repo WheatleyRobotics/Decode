@@ -58,7 +58,7 @@ public class CloseRedAuto extends OpMode {
     private final Pose startingPose = new Pose(118.9603399433428, 130.38810198300283, Math.toRadians(37)); // x: 25.976203966005663, y: 130.24333994334273 gyro 143
     private final Pose firstBallsCloseShotPose = new Pose(90, 92, Math.toRadians(45)); //x: 48, y: 93, yaw 51.5
     private final Pose secondBallsClosePose = new Pose(90, 92, Math.toRadians(45));// yaw 49
-    private final Pose thirdBallsClosePose = new Pose(90, 92, Math.toRadians(45));
+    private final Pose thirdBallsClosePose = new Pose(90, 92, Math.toRadians(43));
     private final Pose firstIntakePose = new Pose(93, 89, Math.toRadians(intakeBallsGyroPos)); //x: 57 y: 88
     private final Pose intakeFirstBallsPose = new Pose(126, 89, Math.toRadians(intakeBallsGyroPos)); //y: 88
     //private final Pose avoidBangPose = new Pose(24.14050991501417, 99.64843909348437, Math.toRadians(141));
