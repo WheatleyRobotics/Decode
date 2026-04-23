@@ -57,6 +57,10 @@ public class RedTele extends OpMode {
     ElapsedTime intakeOutTimer = new ElapsedTime();
     boolean intakeOutActive = false;
     boolean lastTrigger;
+    double driveMag;
+    double turnMag;
+    double robotVelocity;
+    double motionComp;
 
     private double RPMSpeed;
 
@@ -189,14 +193,26 @@ public class RedTele extends OpMode {
         // Switch based on visionMode
         switch (visionMode ? 1 : 2) {
             case 1: // Vision Mode
+                driveMag = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+                turnMag = Math.abs(gamepad1.right_stick_x);
+                robotVelocity = driveMag + (turnMag * TeleConstant.turnVelocityMultiplier);
+
+                driveMag = driveMag < 0.05 ? 0 : driveMag;
+                turnMag  = turnMag  < 0.05 ? 0 : turnMag;
+
                 if (gamepad1.right_trigger > 0.8) {
                     if (limelight.hasTarget()) {
                         RPMSpeed = shooter.RPMSpeed(limelight.distanceFromTagInches());
+
+                        motionComp = robotVelocity * TeleConstant.robotVelocityMultiplier;
+                        RPMSpeed += motionComp;
+
                         shooter.setTargetRPM(RPMSpeed);
                     } else {
-                        shooter.setTargetRPM(TeleConstant.bumperUpTeleRPM); // keep last speed if no target
+                        shooter.setTargetRPM(TeleConstant.bumperUpTeleRPM);
                     }
-                } else {
+                }
+                else {
                     shooter.stopShooter();
                 }
 

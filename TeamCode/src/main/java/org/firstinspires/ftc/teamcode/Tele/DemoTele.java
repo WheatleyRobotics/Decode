@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 
 @Configurable
 @TeleOp
-public class PracticeTele extends OpMode {
+public class DemoTele extends OpMode {
     private Follower follower;
 
     public static Pose startingPose = new Pose(25.855524079320112, 130.38810198300283, Math.toRadians(143));
@@ -47,7 +47,7 @@ public class PracticeTele extends OpMode {
     private LimeLightAutoAlign limeAlign;
     public Pose lastCurrentLimeLightPos = new Pose();
 
-    private int gyroPos = 110; // RED: 20, BLUE: 195, PRACTICE: 110
+    private int gyroPos = 20; // RED: 20, BLUE: 195, PRACTICE: 110
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
@@ -57,10 +57,6 @@ public class PracticeTele extends OpMode {
     ElapsedTime intakeOutTimer = new ElapsedTime();
     boolean intakeOutActive = false;
     boolean lastTrigger;
-    double driveMag;
-    double turnMag;
-    double robotVelocity;
-    double motionComp;
 
     private double RPMSpeed;
 
@@ -166,10 +162,12 @@ public class PracticeTele extends OpMode {
         }
 
         // Automated PathFollowing
+        /*
         if (gamepad1.left_trigger > 0.8) {
             follower.followPath(pathChain.get());
             automatedDrive = true;
         }
+         */
 
         if (automatedDrive && (
                 Math.abs(gamepad1.left_stick_y) > 0.1 ||
@@ -193,23 +191,12 @@ public class PracticeTele extends OpMode {
         // Switch based on visionMode
         switch (visionMode ? 1 : 2) {
             case 1: // Vision Mode
-                driveMag = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-                turnMag = Math.abs(gamepad1.right_stick_x);
-                robotVelocity = driveMag + (turnMag * TeleConstant.turnVelocityMultiplier);
-
-                driveMag = driveMag < 0.05 ? 0 : driveMag;
-                turnMag  = turnMag  < 0.05 ? 0 : turnMag;
-
                 if (gamepad1.right_trigger > 0.8) {
                     if (limelight.hasTarget()) {
                         RPMSpeed = shooter.RPMSpeed(limelight.distanceFromTagInches());
-
-                        motionComp = robotVelocity * TeleConstant.robotVelocityMultiplier;
-                        RPMSpeed += motionComp;
-
                         shooter.setTargetRPM(RPMSpeed);
                     } else {
-                        shooter.setTargetRPM(TeleConstant.bumperUpTeleRPM);
+                        shooter.setTargetRPM(TeleConstant.bumperUpTeleRPM); // keep last speed if no target
                     }
                 } else {
                     shooter.stopShooter();

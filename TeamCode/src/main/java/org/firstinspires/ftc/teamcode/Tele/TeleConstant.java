@@ -44,6 +44,8 @@ public class TeleConstant {
     public static final double farShotOffset = 0.37; //38
     public static final double farIdleRPM = 0.6;
 
+    public static final double robotVelocityMultiplier = 3;
+    public static final double turnVelocityMultiplier = 0.5;
 
     public static final double outakeTime = 0.09;
     public static Pose startingPoseAfterAuto = null;
