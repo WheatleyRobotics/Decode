@@ -47,12 +47,14 @@ public class DemoTele extends OpMode {
     private LimeLightAutoAlign limeAlign;
     public Pose lastCurrentLimeLightPos = new Pose();
 
-    private int gyroPos = 20; // RED: 20, BLUE: 195, PRACTICE: 110
+    private int gyroPos = 196; // RED: 20, BLUE: 195, PRACTICE: 110
     private double gyroShootPos = 100;
 
     private boolean lastRightTrigger = false;
     private boolean autoAimActive = false;
     boolean visionMode = true;
+
+    private int RPMIncrease = 0;
     boolean lastToggle = false;
     ElapsedTime intakeOutTimer = new ElapsedTime();
     boolean intakeOutActive = false;
@@ -240,7 +242,7 @@ public class DemoTele extends OpMode {
 
             case 2: // Non-Vision Mode
                 if (gamepad1.right_trigger > 0.8) {
-                    shooter.setTargetRPM(RPMSpeed);
+                    shooter.setTargetRPM(RPMSpeed + RPMIncrease);
                 } else {
                     shooter.stopShooter();
                 }
@@ -260,12 +262,30 @@ public class DemoTele extends OpMode {
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.midShotOffset);
                     gyroShootPos = TeleConstant.midShotGyro;
                     shooter.setIdleRPM(TeleConstant.midIdleRPM);
-                } else if (gamepad1.dpad_left) {
+                }
+                /*else if (gamepad1.dpad_left) {
                     RPMSpeed = TeleConstant.farShotRPM;
                     hood.setHoodPos(TeleConstant.startingHoodPos + TeleConstant.farShotOffset);
                     gyroShootPos = TeleConstant.farShotGyro;
                     shooter.setIdleRPM(TeleConstant.farIdleRPM);
                 }
+
+                 */
+
+                if(gamepad1.xWasReleased()){
+                    RPMIncrease += 10;
+                }
+                else if(gamepad1.dpadLeftWasPressed()){
+                    RPMIncrease -= 10;
+                }
+
+                if (gamepad1.right_bumper) {
+                    hood.manualUp();
+                }
+                else if (gamepad1.left_trigger > 0.8) {
+                    hood.manualDown();
+                }
+
                 break;
         }
 
